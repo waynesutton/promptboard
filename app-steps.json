@@ -1,0 +1,62 @@
+{
+  "appName": "Trading Card Generator",
+  "version": "1.0.0",
+  "steps": [
+    {
+      "step": 1,
+      "name": "Initial Setup",
+      "tasks": [
+        "Create Convex project",
+        "Set up React + Vite",
+        "Configure TailwindCSS",
+        "Add OpenAI API key to environment"
+      ]
+    },
+    {
+      "step": 2,
+      "name": "Backend Setup",
+      "tasks": [
+        "Create gallery schema",
+        "Implement OpenAI integration",
+        "Set up image processing",
+        "Create gallery mutations"
+      ]
+    },
+    {
+      "step": 3,
+      "name": "Frontend Components",
+      "tasks": [
+        "Add image upload",
+        "Create style selector",
+        "Implement text inputs",
+        "Build gallery grid"
+      ]
+    },
+    {
+      "step": 4,
+      "name": "Styling",
+      "tasks": [
+        "Add Chakra Petch font",
+        "Style components",
+        "Add hover effects",
+        "Implement responsive design"
+      ]
+    },
+    {
+      "step": 5,
+      "name": "Features",
+      "tasks": [
+        "Add image processing",
+        "Implement gallery management",
+        "Add copy URL functionality",
+        "Add delete functionality"
+      ]
+    }
+  ],
+  "systemPrompts": {
+    "Studio Laika": "Generate a stop-motion animation style image",
+    "Ghibli": "Create a Studio Ghibli inspired illustration",
+    "80s Anime": "Design in classic 1980s anime style",
+    "3dsoft": "Create a soft 3D rendered illustration"
+  }
+}
