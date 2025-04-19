@@ -1,10 +1,11 @@
 # 1 Million Prompts
 
-A web application that generates AI-powered images using OpenAI's DALL-E 3 model with custom style transformations.
+A web application where users can generate AI-powered images using OpenAI's DALL-E 3 model with various style selections. The app features a gallery to view generated images, add likes, leave comments, and share links. It tracks the total number of images generated towards the goal of one million prompts.
 
 ## Features
 
 - **Style Selection**: Choose from multiple artistic styles:
+
   - Studio Laika (stop-motion inspired)
   - 3D Soft (Pixar-style)
   - Ghibli (watercolor style)
@@ -13,13 +14,14 @@ A web application that generates AI-powered images using OpenAI's DALL-E 3 model
   - Futuristic
   - B&W
 
-- **Image Generation**: 
+- **Image Generation**:
+
   - Enter custom prompts
   - Select artistic styles
   - Generate images with DALL-E 3
   - Real-time loading indicator with cooking-themed words
 
-- **Gallery Management**: 
+- **Gallery Management**:
   - View generated images in a responsive 20-column grid
   - Click to view larger versions
   - Add likes to favorite images
@@ -46,6 +48,7 @@ A web application that generates AI-powered images using OpenAI's DALL-E 3 model
 ## Environment Setup
 
 Add your OpenAI API key to Convex:
+
 1. Open Convex dashboard
 2. Go to Settings
 3. Add `OPENAI_API_KEY` environment variable
@@ -69,4 +72,5 @@ MIT
 ## Credits
 
 Built with [Chef](https://chef.convex.dev)
+
 # promptboard
