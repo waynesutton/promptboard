@@ -1,10 +1,12 @@
-```markdown
+````markdown
 # 1 Million Prompts - Detailed Setup Guide
 
 ## App Overview
+
 A web application that generates AI-powered images using OpenAI DALL-E 3 with custom style transformations.
 
 ## Tech Stack
+
 - Frontend: React + Vite
 - Backend: Convex
 - Styling: TailwindCSS
@@ -12,6 +14,7 @@ A web application that generates AI-powered images using OpenAI DALL-E 3 with cu
 - Language: TypeScript
 
 ## Color Palette
+
 - Background: #F3F4F6
 - Text Colors:
   - Primary: #0F0F0F
@@ -27,6 +30,7 @@ A web application that generates AI-powered images using OpenAI DALL-E 3 with cu
   - Red: #EE342F
 
 ## Fonts
+
 - Primary Font: Chakra Petch (Light 300)
   - Header: 32px
   - Counter: 18px
@@ -35,12 +39,15 @@ A web application that generates AI-powered images using OpenAI DALL-E 3 with cu
   - Input text: 14px
 
 ## Layout Structure
+
 1. **Header**
+
    - Title "1 million prompts" (left)
    - Image counter (right)
    - Padding: 24px horizontal, 16px vertical
 
 2. **Main Content**
+
    - Input row:
      - Text input (flex-grow)
      - Style dropdown (fixed width)
@@ -51,6 +58,7 @@ A web application that generates AI-powered images using OpenAI DALL-E 3 with cu
      - Square images
 
 3. **Modals**
+
    - Loading Modal:
      - Centered Convex logo animation
      - Cycling cooking words
@@ -70,20 +78,25 @@ A web application that generates AI-powered images using OpenAI DALL-E 3 with cu
 ## Key Features
 
 ### 1. Image Generation
+
 ```typescript
 // System Prompts
 export const SYSTEM_PROMPTS = {
   "Studio Laika": "A stop-motion-inspired image in the style of Studio Laika (Coraline, Kubo).",
   "3dsoft": "A Pixar-style 3D animated image.",
-  "Ghibli": "A Studio Ghibli-style watercolor image.",
+  Ghibli: "A Studio Ghibli-style watercolor image.",
   "80s Anime": "A 1980s anime style image.",
   "T206 Vintage": "A vintage T206 image style.",
-  "futuristic": "A futuristic image with a dark, moody neon aesthetic and soft sci-fi lighting, holographic materials, glowing edges, and subtle motion-blur reflections.",
-  "b&w": "A high-contrast black and white image with dramatic shadows and a timeless, cinematic style."
+  futuristic:
+    "A futuristic image with a dark, moody neon aesthetic and soft sci-fi lighting, holographic materials, glowing edges, and subtle motion-blur reflections.",
+  "b&w":
+    "A high-contrast black and white image with dramatic shadows and a timeless, cinematic style.",
 };
 ```
+````
 
 ### 2. Loading Animation
+
 ```typescript
 // Cooking Words Array
 const cookingWords = ["baking", "boiling", "grilling", "roasting", "frying", "sauteing", "steaming", "broiling", "chopping", "mixing", "whisking", "stirring", "blending", "measuring", "seasoning", "marinating", "preheating", "peeling", "slicing", "dicing", "mincing", "simmering", "poaching", "glazing", "caramelizing", "reducing", "kneading", "folding", "greasing", "sifting", "cracking", "spreading", "layering", "toasting", "skewering", "drizzling", "serving", "plating", "garnishing", "flipping", "tossing", "braising", "grating", "infusing", "chilling", "reheating", "pureeing", "melting", "searing", "rubbing"];
@@ -99,6 +112,7 @@ const cookingWords = ["baking", "boiling", "grilling", "roasting", "frying", "sa
 ## Backend Structure (Convex)
 
 ### Schema
+
 ```typescript
 export default defineSchema({
   ...authTables,
@@ -118,6 +132,7 @@ export default defineSchema({
 ```
 
 ### Required Environment Variables
+
 ```
 OPENAI_API_KEY=your_openai_api_key
 ```
@@ -125,6 +140,7 @@ OPENAI_API_KEY=your_openai_api_key
 ## Frontend Components
 
 ### 1. Main App Structure
+
 ```typescript
 function App() {
   // States
@@ -149,6 +165,7 @@ function App() {
 ```
 
 ### 2. Tailwind Classes
+
 - Container: `min-h-screen bg-[#F3F4F6] flex flex-col`
 - Header: `flex items-center justify-between px-6 py-4`
 - Title: `font-['Chakra_Petch'] font-light text-[32px] text-[#0F0F0F]`
@@ -160,26 +177,31 @@ function App() {
 ## Setup Steps
 
 1. **Create Project**
+
    ```bash
    npm create vite@latest my-app -- --template react-ts
    cd my-app
    ```
 
 2. **Install Dependencies**
+
    ```bash
    npm install convex openai react tailwindcss
    ```
 
 3. **Initialize Convex**
+
    ```bash
    npx convex init
    ```
 
 4. **Configure Environment**
+
    - Add OpenAI API key to Convex environment variables
    - Set up Convex deployment
 
 5. **Copy Files**
+
    - Create `gallery.ts` in convex/
    - Create `App.tsx` in src/
    - Update `schema.ts` in convex/
@@ -191,7 +213,9 @@ function App() {
    ```
 
 ## Deployment
+
 1. Deploy Convex functions:
+
    ```bash
    npx convex deploy
    ```
@@ -203,6 +227,7 @@ function App() {
    - Deploy
 
 ## Common Issues
+
 1. Image generation errors:
    - Check OpenAI API key
    - Verify prompt format
@@ -214,8 +239,13 @@ function App() {
    - Check async function handling
 
 ## Support
+
 For more help:
+
 - Convex Discord: https://discord.com/invite/q5K2VHvBcD
 - OpenAI Docs: https://platform.openai.com/docs
-- Chef Docs: https://chef.convex.dev
+- Chef Docs: https://convex.link/1millchefs
+
+```
+
 ```

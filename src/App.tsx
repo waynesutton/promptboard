@@ -442,7 +442,7 @@ function App() {
         <div className="text-sm text-[#6B7280] mb-2">
           Cooked on
           <a
-            href="https://chef.convex.dev"
+            href="https://convex.link/1millchefs"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-1 hover:underline">
@@ -450,24 +450,25 @@ function App() {
           </a>{" "}
           with a splash of
           <a
-            href="https://openai.com"
+            href="https://openai.com/?utm_source=convexchef1millionprompts"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-1 hover:underline">
             openai
-          </a>
+          </a>{" "}
+          DALL·E 3
         </div>
         {/* Flex container for logos */}
         <div className="flex items-center justify-center gap-4">
           {/* Convex Logo */}
           {getConvexLogo?.imageUrl && (
-            <a href="https://convex.dev" target="_blank" rel="noopener noreferrer">
+            <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
               <img src={getConvexLogo.imageUrl} alt="Convex Logo" className="h-5" />
             </a>
           )}
           {/* Chef Logo */}
           {getChefLogo?.imageUrl && (
-            <a href="https://chef.convex.dev" target="_blank" rel="noopener noreferrer">
+            <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
               <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-9" />
             </a>
           )}

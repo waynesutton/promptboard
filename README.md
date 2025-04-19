@@ -71,6 +71,6 @@ MIT
 
 ## Credits
 
-Built with [Chef](https://chef.convex.dev)
+Built with [Chef](https://convex.link/1millchefs)
 
 # promptboard
