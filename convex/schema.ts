@@ -11,6 +11,7 @@ export default defineSchema({
     aiResponse: v.string(),
     likes: v.number(),
     commentCount: v.optional(v.number()),
+    clicks: v.optional(v.number()),
   })
     .index("by_likes", ["likes"])
     .index("by_comment_count", ["commentCount"]),

@@ -116,6 +116,7 @@ export const internalSaveProcessedImage = internalMutation({
       aiResponse: args.aiResponse ?? "",
       likes: 0,
       commentCount: 0,
+      clicks: 0, // Initialize clicks to 0
     });
   },
 });
@@ -199,16 +200,42 @@ export const addLike = mutation({
   },
 });
 
+/**
+ * Increment the click count for a specific image.
+ */
+export const incrementImageClicks = mutation({
+  args: {
+    imageId: v.id("gallery"),
+  },
+  handler: async (ctx, args) => {
+    const image = await ctx.db.get(args.imageId);
+    if (!image) {
+      console.error(`Image not found: ${args.imageId}`);
+      // Consider throwing an error for better client feedback
+      // throw new Error(`Image not found: ${args.imageId}`);
+      return; // Return early if image doesn't exist
+    }
+    // Use patch to update the clicks field, ensuring atomicity
+    // Initialize clicks to 0 if it's null/undefined before incrementing
+    await ctx.db.patch(args.imageId, { clicks: (image.clicks ?? 0) + 1 });
+  },
+});
+
 // --- Dashboard Queries ---
 
 // Get last 20 prompts
 export const getLast20Prompts = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db
+    const prompts = await ctx.db
       .query("gallery")
       .order("desc") // Order by _creationTime descending (default index)
       .take(20);
+    // Map to include clicks
+    return prompts.map((p) => ({
+      ...p, // Spread existing fields
+      clicks: p.clicks ?? 0, // Ensure clicks is returned, default to 0 if null/undefined
+    }));
   },
 });
 
@@ -216,11 +243,15 @@ export const getLast20Prompts = query({
 export const getLast20Styles = query({
   args: {},
   handler: async (ctx) => {
-    // Since we need style and creation time, fetch the full docs
-    return await ctx.db
+    const styles = await ctx.db
       .query("gallery")
       .order("desc") // Order by _creationTime descending
       .take(20);
+    // Map to include clicks
+    return styles.map((s) => ({
+      ...s,
+      clicks: s.clicks ?? 0,
+    }));
   },
 });
 
@@ -228,10 +259,15 @@ export const getLast20Styles = query({
 export const getAllPrompts = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db
+    const prompts = await ctx.db
       .query("gallery")
       .order("desc") // Order by _creationTime descending
       .take(100); // Limit for performance
+    // Map to include clicks
+    return prompts.map((p) => ({
+      ...p,
+      clicks: p.clicks ?? 0,
+    }));
   },
 });
 
@@ -239,11 +275,16 @@ export const getAllPrompts = query({
 export const getMostLikedImages = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db
+    const images = await ctx.db
       .query("gallery")
-      .withIndex("by_likes", (q) => q) // Use the new index
+      .withIndex("by_likes", (q) => q) // Use the likes index
       .order("desc") // Order by likes descending
       .take(20);
+    // Map to include clicks
+    return images.map((img) => ({
+      ...img,
+      clicks: img.clicks ?? 0,
+    }));
   },
 });
 
@@ -251,10 +292,16 @@ export const getMostLikedImages = query({
 export const getMostCommentedImages = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db
+    const images = await ctx.db
       .query("gallery")
-      .withIndex("by_comment_count", (q) => q) // Use the new index
+      // Make sure index name matches schema: by_comment_count
+      .withIndex("by_comment_count", (q) => q)
       .order("desc") // Order by commentCount descending
       .take(20);
+    // Map to include clicks
+    return images.map((img) => ({
+      ...img,
+      clicks: img.clicks ?? 0,
+    }));
   },
 });

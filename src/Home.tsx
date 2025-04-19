@@ -183,6 +183,7 @@ function Home() {
   const modalImageData = modalImageId ? galleryItems.find((img) => img._id === modalImageId) : null;
 
   const isLimitReached = galleryCount >= MAX_GALLERY_COUNT;
+  const isLoadingMore = galleryStatus === "LoadingMore";
 
   // Actions & Mutations
   const generateImage = useAction(api.gallery.processImage);
@@ -371,9 +372,9 @@ function Home() {
           <div className="text-center my-8">
             <button
               onClick={() => loadMore(1000)}
-              disabled={galleryStatus === "LoadingMore"}
+              disabled={isLoadingMore}
               className="px-6 py-2 bg-[#EB2E2A] text-white rounded-lg hover:bg-[#cf2925] disabled:opacity-50">
-              {galleryStatus === "LoadingMore" ? "Loading..." : "Load More"}
+              {isLoadingMore ? "Loading..." : "Load More"}
             </button>
           </div>
         )}

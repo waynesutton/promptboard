@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 
 // Define the type for a gallery document for the dashboard
-// Include all fields needed for the tables
+// Include all fields needed for the tables, including clicks
 interface DashboardGalleryDoc {
   _id: Id<"gallery">;
   _creationTime: number;
@@ -13,7 +13,8 @@ interface DashboardGalleryDoc {
   prompt: string;
   aiResponse: string;
   likes: number;
-  commentCount?: number; // Make optional to fix linter error
+  commentCount?: number; // Make optional to match schema/queries
+  clicks: number; // Add clicks field
 }
 
 // Shared Header Component (assuming it might be needed elsewhere or for consistency)
@@ -110,9 +111,10 @@ interface DataTableProps {
   data: DashboardGalleryDoc[] | undefined | null;
   columns: string[];
   activeTab: string;
+  onPromptClick: (imageId: Id<"gallery">) => void; // Add callback prop
 }
 
-function DataTable({ data, columns, activeTab }: DataTableProps) {
+function DataTable({ data, columns, activeTab, onPromptClick }: DataTableProps) {
   if (!data) {
     return <div className="mt-4 text-center text-gray-500">Loading data...</div>;
   }
@@ -146,14 +148,20 @@ function DataTable({ data, columns, activeTab }: DataTableProps) {
             <tr key={item._id}>
               {columns.includes("Prompt") && (
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {/* Wrap prompt in a link */}
+                  {/* Wrap prompt in a link, add onClick handler */}
                   <a
                     href={`/?imageId=${item._id}`}
                     target="_blank" // Open in new tab
                     rel="noopener noreferrer"
-                    className="hover:underline">
-                    {" "}
-                    {/* Underline on hover only */}
+                    className="hover:underline cursor-pointer" // Added cursor-pointer for clarity
+                    onClick={(e) => {
+                      // Call mutation *before* navigation
+                      onPromptClick(item._id);
+                      // Allow default link behavior to proceed unless handled differently (e.g., modal)
+                      // If we were opening a modal here instead:
+                      // e.preventDefault();
+                      // openModalFunction(item._id);
+                    }}>
                     {item.prompt}
                   </a>
                 </td>
@@ -169,12 +177,16 @@ function DataTable({ data, columns, activeTab }: DataTableProps) {
                   {item.commentCount ?? 0} {/* Handle optional commentCount */}
                 </td>
               )}
+              {columns.includes("Clicks") && ( // Add Clicks column display
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {item.clicks ?? 0} {/* Handle potential null/undefined */}
+                </td>
+              )}
               {columns.includes("Date Submitted") && (
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {formatDate(item._creationTime)}
                 </td>
               )}
-              {/* Add more conditional cells based on columns array */}
             </tr>
           ))}
         </tbody>
@@ -185,6 +197,8 @@ function DataTable({ data, columns, activeTab }: DataTableProps) {
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("last20Prompts");
+  // Get the mutation function
+  const incrementClicks = useMutation(api.gallery.incrementImageClicks);
 
   // Fetch data for the dashboard
   const galleryCount = useQuery(api.gallery.getGalleryCount) || 0;
@@ -200,6 +214,13 @@ function Dashboard() {
     imageId: CONVEX_LOGO_ID as Id<"_storage">,
   });
 
+  // Handler to call the mutation
+  const handlePromptClick = (imageId: Id<"gallery">) => {
+    incrementClicks({ imageId });
+    // Note: The link's default behavior (opening in new tab) will still happen.
+    // No navigation prevention needed here as it opens in a new tab.
+  };
+
   // Determine data and columns based on active tab
   let currentData: DashboardGalleryDoc[] | undefined | null = null;
   let currentColumns: string[] = [];
@@ -207,23 +228,24 @@ function Dashboard() {
   switch (activeTab) {
     case "last20Prompts":
       currentData = last20Prompts;
-      currentColumns = ["Prompt", "Date Submitted"];
+      currentColumns = ["Prompt", "Clicks", "Date Submitted"]; // Add Clicks
       break;
     case "last20Styles":
       currentData = last20Styles;
+      // Decide if Clicks should be shown for styles. Assuming not for now.
       currentColumns = ["Style", "Date Submitted"];
       break;
     case "allPrompts":
       currentData = allPrompts;
-      currentColumns = ["Prompt", "Date Submitted"];
+      currentColumns = ["Prompt", "Clicks", "Date Submitted"]; // Add Clicks
       break;
     case "mostLiked":
       currentData = mostLiked;
-      currentColumns = ["Prompt", "Likes", "Date Submitted"];
+      currentColumns = ["Prompt", "Likes", "Clicks", "Date Submitted"]; // Add Clicks
       break;
     case "mostCommented":
       currentData = mostCommented;
-      currentColumns = ["Prompt", "Comments", "Date Submitted"];
+      currentColumns = ["Prompt", "Comments", "Clicks", "Date Submitted"]; // Add Clicks
       break;
   }
 
@@ -277,7 +299,13 @@ function Dashboard() {
 
         {/* Data Table Section */}
         <div className="bg-white shadow rounded-lg p-4 min-h-[400px]">
-          <DataTable data={currentData} columns={currentColumns} activeTab={activeTab} />
+          {/* Pass the handler to DataTable */}
+          <DataTable
+            data={currentData}
+            columns={currentColumns}
+            activeTab={activeTab}
+            onPromptClick={handlePromptClick}
+          />
         </div>
       </main>
 
