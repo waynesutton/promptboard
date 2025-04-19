@@ -108,6 +108,7 @@ export const internalSaveProcessedImage = internalMutation({
       prompt: args.prompt,
       aiResponse: args.aiResponse ?? "",
       likes: 0,
+      commentCount: 0,
     });
   },
 });
@@ -167,7 +168,21 @@ export const addComment = mutation({
     text: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("comments", args);
+    // Fetch the gallery item to increment comment count
+    const galleryItem = await ctx.db.get(args.galleryId);
+    if (!galleryItem) {
+      throw new Error("Gallery item not found to add comment");
+    }
+    // Increment comment count
+    await ctx.db.patch(args.galleryId, {
+      commentCount: (galleryItem.commentCount || 0) + 1,
+    });
+    // Insert the comment
+    return await ctx.db.insert("comments", {
+      galleryId: args.galleryId,
+      userName: args.userName,
+      text: args.text,
+    });
   },
 });
 
@@ -181,5 +196,65 @@ export const addLike = mutation({
     return await ctx.db.patch(args.galleryId, {
       likes: (gallery.likes || 0) + 1,
     });
+  },
+});
+
+// --- Dashboard Queries ---
+
+// Get last 20 prompts
+export const getLast20Prompts = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("gallery")
+      .order("desc") // Order by _creationTime descending (default index)
+      .take(20);
+  },
+});
+
+// Get last 20 styles used
+export const getLast20Styles = query({
+  args: {},
+  handler: async (ctx) => {
+    // Since we need style and creation time, fetch the full docs
+    return await ctx.db
+      .query("gallery")
+      .order("desc") // Order by _creationTime descending
+      .take(20);
+  },
+});
+
+// Get all prompts (Limited to 100 for performance, consider pagination later)
+export const getAllPrompts = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("gallery")
+      .order("desc") // Order by _creationTime descending
+      .take(100); // Limit for performance
+  },
+});
+
+// Get 20 most liked images
+export const getMostLikedImages = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("gallery")
+      .withIndex("by_likes", (q) => q) // Use the new index
+      .order("desc") // Order by likes descending
+      .take(20);
+  },
+});
+
+// Get 20 most commented images
+export const getMostCommentedImages = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("gallery")
+      .withIndex("by_comment_count", (q) => q) // Use the new index
+      .order("desc") // Order by commentCount descending
+      .take(20);
   },
 });
