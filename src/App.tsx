@@ -99,6 +99,54 @@ function GalleryImageItem({ imageDoc, onClick }: GalleryImageItemProps) {
   );
 }
 
+// Define the types for the props of FooterContent
+interface FooterContentProps {
+  getConvexLogo: { imageUrl?: string | null } | null | undefined;
+  getChefLogo: { imageUrl?: string | null } | null | undefined;
+}
+
+// Reusable Footer Content Component
+function FooterContent({ getConvexLogo, getChefLogo }: FooterContentProps) {
+  return (
+    <div className="text-center py-4 mt-5">
+      <div className="text-sm text-[#6B7280] mb-2">
+        Cooked on
+        <a
+          href="https://convex.link/1millchefs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-1 hover:underline">
+          Convex Chef
+        </a>{" "}
+        with a splash of
+        <a
+          href="https://openai.com/?utm_source=convexchef1millionprompts"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-1 hover:underline">
+          openai
+        </a>{" "}
+        DALL·E 3
+      </div>
+      {/* Flex container for logos */}
+      <div className="flex items-center justify-center gap-4">
+        {/* Convex Logo */}
+        {getConvexLogo?.imageUrl && (
+          <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
+            <img src={getConvexLogo.imageUrl} alt="Convex Logo" className="h-3" />
+          </a>
+        )}
+        {/* Chef Logo */}
+        {getChefLogo?.imageUrl && (
+          <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
+            <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-8" />
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function App() {
   // States
   const [selectedStyle, setSelectedStyle] = useState("Studio Laika");
@@ -380,6 +428,8 @@ function App() {
                 {copied ? "Copied!" : "Copy Link"}
               </button>
             </div>
+            {/* Add Footer Content Here */}
+            <FooterContent getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} />
           </div>
         </div>
       )}
@@ -438,41 +488,9 @@ function App() {
       )}
 
       {/* Footer */}
-      <footer className="text-center py-8 mt-8">
-        <div className="text-sm text-[#6B7280] mb-2">
-          Cooked on
-          <a
-            href="https://convex.link/1millchefs"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-1 hover:underline">
-            Convex Chef
-          </a>{" "}
-          with a splash of
-          <a
-            href="https://openai.com/?utm_source=convexchef1millionprompts"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-1 hover:underline">
-            openai
-          </a>{" "}
-          DALL·E 3
-        </div>
-        {/* Flex container for logos */}
-        <div className="flex items-center justify-center gap-4">
-          {/* Convex Logo */}
-          {getConvexLogo?.imageUrl && (
-            <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
-              <img src={getConvexLogo.imageUrl} alt="Convex Logo" className="h-5" />
-            </a>
-          )}
-          {/* Chef Logo */}
-          {getChefLogo?.imageUrl && (
-            <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
-              <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-9" />
-            </a>
-          )}
-        </div>
+      <footer className="mt-8">
+        {/* Use the reusable FooterContent component */}
+        <FooterContent getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} />
       </footer>
     </div>
   );
