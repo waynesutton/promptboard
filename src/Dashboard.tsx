@@ -18,13 +18,14 @@ interface DashboardGalleryDoc {
 }
 
 // --- Modified Header Component ---
-// Add props for logo data
-interface HeaderProps {
-  getConvexLogo: { imageUrl?: string | null } | null | undefined;
-  getChefLogo: { imageUrl?: string | null } | null | undefined;
-}
+// Remove props interface
+// interface HeaderProps {
+//   getConvexLogo: { imageUrl?: string | null } | null | undefined;
+//   getChefLogo: { imageUrl?: string | null } | null | undefined;
+// }
 
-function Header({ getConvexLogo, getChefLogo }: HeaderProps) {
+// Remove props from function signature
+function Header() {
   const galleryCount = useQuery(api.gallery.getGalleryCount) || 0;
 
   return (
@@ -55,18 +56,14 @@ function Header({ getConvexLogo, getChefLogo }: HeaderProps) {
         {/* Changed to flex-col, items-end, reduced gap */}
         {/* Logos remain on top */}
         <div className="flex items-center justify-center gap-2">
-          {getConvexLogo?.imageUrl && (
-            <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
-              <img src={getConvexLogo.imageUrl} alt="Convex Logo" className="h-4" />{" "}
-              {/* Smaller height */}
-            </a>
-          )}
-          {getChefLogo?.imageUrl && (
-            <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
-              <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-9" />{" "}
-              {/* Smaller height */}
-            </a>
-          )}
+          {/* Use static path for Convex logo */}
+          <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
+            <img src="/convex-black.svg" alt="Convex Logo" className="h-4" /> {/* Smaller height */}
+          </a>
+          {/* Use static path for Chef logo */}
+          <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
+            <img src="/chef.svg" alt="Chef Logo" className="h-9" /> {/* Smaller height */}
+          </a>
         </div>
         {/* "Cooked on..." text - now below logos, single line */}
         <div className="text-l text-right text-[#6B7280] hidden md:block">
@@ -146,8 +143,8 @@ function FooterContent({ getConvexLogo, getChefLogo }: FooterContentProps) {
 }
 */
 // Constants still needed if getImage calls remain
-const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
-const CONVEX_LOGO_ID = "kg22dhgjcrwasz9vpntxqj0q157eag1p";
+// const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
+// const CONVEX_LOGO_ID = "kg22dhgjcrwasz9vpntxqj0q157eag1p";
 
 // Tab Component
 interface TabButtonProps {
@@ -267,11 +264,11 @@ function Dashboard() {
   const mostLiked = useQuery(api.gallery.getMostLikedImages);
   const mostCommented = useQuery(api.gallery.getMostCommentedImages);
 
-  // Fetch logos for HEADER
-  const getChefLogo = useQuery(api.gallery.getImage, { imageId: CHEF_LOGO_ID as Id<"_storage"> });
-  const getConvexLogo = useQuery(api.gallery.getImage, {
-    imageId: CONVEX_LOGO_ID as Id<"_storage">,
-  });
+  // Remove logo queries
+  // const getChefLogo = useQuery(api.gallery.getImage, { imageId: CHEF_LOGO_ID as Id<"_storage"> });
+  // const getConvexLogo = useQuery(api.gallery.getImage, {
+  //   imageId: CONVEX_LOGO_ID as Id<"_storage">,
+  // });
 
   // Handler to call the mutation
   const handlePromptClick = (imageId: Id<"gallery">) => {
@@ -309,8 +306,8 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#F3F4F6] flex flex-col">
-      {/* Pass logo data to the updated Header */}
-      <Header getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} />
+      {/* Call Header without props */}
+      <Header />
 
       {/* Main Dashboard Content */}
       <main className="flex-1 px-6 py-8">

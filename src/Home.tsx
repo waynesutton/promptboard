@@ -8,8 +8,9 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useGesture, FullGestureState } from "@use-gesture/react";
 import { throttle } from "lodash";
 
-const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
-const CONVEX_LOGO_ID = "kg22dhgjcrwasz9vpntxqj0q157eag1p";
+// Remove logo IDs
+// const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
+// const CONVEX_LOGO_ID = "kg22dhgjcrwasz9vpntxqj0q157eag1p";
 const MAX_GALLERY_COUNT = 1000000;
 const cookingWords = [
   "baking",
@@ -179,14 +180,8 @@ function GalleryImageItem({ imageDoc, onClick, scrollScale }: GalleryImageItemPr
 }
 // New component to render a single gallery image end
 
-// Define the types for the props of FooterContent
-interface FooterContentProps {
-  getConvexLogo: { imageUrl?: string | null } | null | undefined;
-  getChefLogo: { imageUrl?: string | null } | null | undefined;
-}
-
-// Reusable Footer Content Component
-function FooterContent({ getConvexLogo, getChefLogo }: FooterContentProps) {
+// Reusable Footer Content Component - Remove props
+function FooterContent() {
   return (
     <div className="text-center py-4 mt-5">
       <div className="text-sm text-[#6B7280] mb-2">
@@ -209,16 +204,14 @@ function FooterContent({ getConvexLogo, getChefLogo }: FooterContentProps) {
         DALL·E 3
       </div>
       <div className="flex items-center justify-center gap-4">
-        {getConvexLogo?.imageUrl && (
-          <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
-            <img src={getConvexLogo.imageUrl} alt="Convex Logo" className="h-3" />
-          </a>
-        )}
-        {getChefLogo?.imageUrl && (
-          <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
-            <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-6" />
-          </a>
-        )}
+        {/* Use static path for Convex logo */}
+        <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
+          <img src="/convex-black.svg" alt="Convex Logo" className="h-3" />
+        </a>
+        {/* Use static path for Chef logo */}
+        <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
+          <img src="/chef.svg" alt="Chef Logo" className="h-6" />
+        </a>
       </div>
     </div>
   );
@@ -252,10 +245,11 @@ function Home() {
     { initialNumItems: 1000 } // Load 1000 initially (10 columns * 100 rows)
   );
   const galleryCount = useQuery(api.gallery.getGalleryCount) || 0;
-  const getChefLogo = useQuery(api.gallery.getImage, { imageId: CHEF_LOGO_ID as Id<"_storage"> });
-  const getConvexLogo = useQuery(api.gallery.getImage, {
-    imageId: CONVEX_LOGO_ID as Id<"_storage">,
-  });
+  // Remove logo queries
+  // const getChefLogo = useQuery(api.gallery.getImage, { imageId: CHEF_LOGO_ID as Id<"_storage"> });
+  // const getConvexLogo = useQuery(api.gallery.getImage, {
+  //   imageId: CONVEX_LOGO_ID as Id<"_storage">,
+  // });
   const getComments = useQuery(
     api.gallery.getComments,
     modalImageId ? { galleryId: modalImageId } : "skip"
@@ -630,7 +624,8 @@ function Home() {
                 {copied ? "Copied!" : "Copy Link"}
               </button>
             </div>
-            <FooterContent getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} />
+            {/* Call FooterContent without props */}
+            <FooterContent />
           </div>
         </div>
       )}
@@ -709,7 +704,8 @@ function Home() {
       )}
 
       <footer className="mt-auto">
-        <FooterContent getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} />
+        {/* Call FooterContent without props */}
+        <FooterContent />
         <div className="text-center text-sm text-gray-500 pb-4">
           <a href="/dashboard" className="hover:underline">
             View Dashboard
