@@ -5,6 +5,7 @@ import { Id } from "../convex/_generated/dataModel";
 import { ExternalLink } from "lucide-react";
 
 const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
+const CONVEX_LOGO_ID = "kg22dhgjcrwasz9vpntxqj0q157eag1p";
 const cookingWords = [
   "baking",
   "boiling",
@@ -116,6 +117,10 @@ function App() {
   const listGallery = useQuery(api.gallery.listGallery) || [];
   const galleryCount = useQuery(api.gallery.getGalleryCount) || 0;
   const getChefLogo = useQuery(api.gallery.getImage, { imageId: CHEF_LOGO_ID as Id<"_storage"> });
+  // Fetch Convex logo URL
+  const getConvexLogo = useQuery(api.gallery.getImage, {
+    imageId: CONVEX_LOGO_ID as Id<"_storage">,
+  });
   // getComments depends on modalImageId, so keep its conditional query
   const getComments = useQuery(
     api.gallery.getComments,
@@ -226,22 +231,12 @@ function App() {
           1 million prompts
         </h1>
         <div className="flex items-center gap-4">
-          <span className="font-['Chakra_Petch'] font-light text-xl text-[#6B7280]">
-            {galleryCount.toLocaleString("en-US", { minimumIntegerDigits: 7, useGrouping: true })}
-          </span>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 px-6">
-        {/* Input Row */}
-        <div className="flex items-center gap-4 mb-8">
           <input
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Enter your prompt..."
-            className="flex-1 px-4 py-2 bg-white rounded-lg shadow-sm"
+            placeholder="Add to the 1 million. Enter your prompt..."
+            className="w-96 px-4 py-2 bg-white rounded-lg shadow-sm"
           />
           <select
             value={selectedStyle}
@@ -263,9 +258,17 @@ function App() {
             {isLoading ? "Generating..." : "Generate"}
           </button>
         </div>
+        <div className="flex items-center gap-4">
+          <span className="font-['Chakra_Petch'] font-light text-xl text-[#6B7280]">
+            {galleryCount.toLocaleString("en-US", { minimumIntegerDigits: 7, useGrouping: true })}
+          </span>
+        </div>
+      </header>
 
+      {/* Main Content */}
+      <main className="flex-1 px-6">
         {/* Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-1 mt-8">
           {listGallery.map((imgDoc: GalleryDoc) => (
             // Use the new GalleryImageItem component
             <GalleryImageItem
@@ -434,7 +437,7 @@ function App() {
 
       {/* Footer */}
       <footer className="text-center py-8 mt-8">
-        <div className="text-sm text-[#6B7280]">
+        <div className="text-sm text-[#6B7280] mb-2">
           Cooked on
           <a
             href="https://chef.convex.dev"
@@ -452,11 +455,21 @@ function App() {
             openai
           </a>
         </div>
-        {getChefLogo?.imageUrl && (
-          <a href="https://chef.convex.dev" target="_blank" rel="noopener noreferrer">
-            <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-8 mx-auto mt-2" />
-          </a>
-        )}
+        {/* Flex container for logos */}
+        <div className="flex items-center justify-center gap-4">
+          {/* Convex Logo */}
+          {getConvexLogo?.imageUrl && (
+            <a href="https://convex.dev" target="_blank" rel="noopener noreferrer">
+              <img src={getConvexLogo.imageUrl} alt="Convex Logo" className="h-5" />
+            </a>
+          )}
+          {/* Chef Logo */}
+          {getChefLogo?.imageUrl && (
+            <a href="https://chef.convex.dev" target="_blank" rel="noopener noreferrer">
+              <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-9" />
+            </a>
+          )}
+        </div>
       </footer>
     </div>
   );
