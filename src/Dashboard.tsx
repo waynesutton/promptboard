@@ -25,7 +25,7 @@ function Header() {
   return (
     <header className="flex items-center justify-between px-6 py-4">
       <h1 className="font-['Chakra_Petch'] font-light text-[32px] text-[#0F0F0F]">
-        1 million prompts
+        <a href="/">1 million prompts</a>
       </h1>
       {/* Add any other static header elements needed, like nav links if any */}
       {/* Display count in the header for consistency with Home page */}

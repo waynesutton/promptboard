@@ -137,7 +137,7 @@ function FooterContent({ getConvexLogo, getChefLogo }: FooterContentProps) {
         )}
         {getChefLogo?.imageUrl && (
           <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
-            <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-8" />
+            <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-6" />
           </a>
         )}
       </div>
@@ -516,6 +516,11 @@ function Home() {
 
       <footer className="mt-auto">
         <FooterContent getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} />
+        <div className="text-center text-sm text-gray-500 pb-4">
+          <a href="/dashboard" className="hover:underline">
+            dashboard
+          </a>
+        </div>
       </footer>
     </div>
   );
