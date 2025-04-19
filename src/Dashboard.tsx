@@ -228,24 +228,23 @@ function Dashboard() {
   switch (activeTab) {
     case "last20Prompts":
       currentData = last20Prompts;
-      currentColumns = ["Prompt", "Clicks", "Date Submitted"]; // Add Clicks
+      currentColumns = ["Prompt", "Date Submitted"]; // Remove Clicks
       break;
     case "last20Styles":
       currentData = last20Styles;
-      // Decide if Clicks should be shown for styles. Assuming not for now.
-      currentColumns = ["Style", "Date Submitted"];
+      currentColumns = ["Style", "Date Submitted"]; // Clicks wasn't here
       break;
     case "allPrompts":
       currentData = allPrompts;
-      currentColumns = ["Prompt", "Clicks", "Date Submitted"]; // Add Clicks
+      currentColumns = ["Prompt", "Date Submitted"]; // Remove Clicks
       break;
     case "mostLiked":
       currentData = mostLiked;
-      currentColumns = ["Prompt", "Likes", "Clicks", "Date Submitted"]; // Add Clicks
+      currentColumns = ["Prompt", "Likes", "Date Submitted"]; // Remove Clicks
       break;
     case "mostCommented":
       currentData = mostCommented;
-      currentColumns = ["Prompt", "Comments", "Clicks", "Date Submitted"]; // Add Clicks
+      currentColumns = ["Prompt", "Comments", "Date Submitted"]; // Remove Clicks
       break;
   }
 
