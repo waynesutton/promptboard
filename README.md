@@ -1,6 +1,10 @@
-# 1 Million Prompts
+# 1 Million Prompts | Track and generate AI images with OpenAI DALL·E 3 on Convex, Cooked with Chef
 
-A web application where users can generate AI-powered images using OpenAI's DALL-E 3 model with various style selections. The app features a gallery to view generated images, add likes, leave comments, and share links. It tracks the total number of images generated towards the goal of one million prompts.
+## About
+
+1 Million Prompts is an AI image generator built on Convex, Convex Chef, and OpenAI DALL·E 3 where every prompt counts toward a shared goal: generating one million images.
+Create and share AI art, track progress in real-time, and explore a living gallery of prompts from the community.
+It's not just an app—it's a global race to one million
 
 ## Features
 
@@ -65,9 +69,63 @@ Add your OpenAI API key to Convex:
 
 Feel free to submit issues and enhancement requests.
 
-## License
+## Project Structure
 
-MIT
+```
+.
+├── convex/               # Convex backend functions and schema
+│   ├── _generated/       # Auto-generated Convex files
+│   ├── auth.config.ts    # Authentication configuration
+│   ├── auth.ts           # Authentication helper functions
+│   ├── functions.ts      # General utility functions (if any)
+│   ├── gallery.ts        # Core image generation and gallery logic
+│   ├── http.ts           # HTTP endpoints (if any)
+│   └── schema.ts         # Database schema definition
+├── public/               # Static assets (e.g., images, fonts)
+├── src/                  # Frontend source code
+│   ├── components/       # Reusable React components
+│   │   └── ui/           # UI library components (e.g., Shadcn)
+│   ├── hooks/            # Custom React hooks
+│   ├── lib/              # Utility functions for the frontend
+│   ├── App.tsx           # Main application component with routing
+│   ├── Dashboard.tsx     # Dashboard page component
+│   ├── Home.tsx          # Home page component
+│   ├── SignInForm.tsx    # Sign-in form component
+│   ├── SignOutButton.tsx # Sign-out button component
+│   ├── index.css         # Global styles
+│   └── main.tsx          # Application entry point
+├── .env.local            # Local environment variables (Gitignored)
+├── .gitignore            # Specifies intentionally untracked files
+├── README.md             # Project documentation (this file)
+├── bun.lockb             # Bun lockfile
+├── index.html            # Main HTML entry point for Vite
+├── package.json          # Project metadata and dependencies
+├── postcss.config.cjs    # PostCSS configuration
+├── tailwind.config.js    # Tailwind CSS configuration
+├── tsconfig.json         # Base TypeScript configuration
+├── tsconfig.app.json     # TypeScript configuration for the app
+├── tsconfig.node.json    # TypeScript configuration for Node contexts
+└── vite.config.ts        # Vite configuration
+```
+
+## Understanding Convex
+
+Learn more about the concepts and best practices behind Convex:
+
+- [Convex Overview](https://docs.convex.dev/understanding/)
+- [Development Workflow](https://docs.convex.dev/understanding/workflow)
+- [Best Practices](https://docs.convex.dev/understanding/best-practices/)
+- [TypeScript Best Practices](https://docs.convex.dev/understanding/best-practices/typescript)
+- [Environment Variables](https://docs.convex.dev/production/environment-variables)
+- [AI Code Generation](https://docs.convex.dev/ai)
+
+## Hosting
+
+For more detailed instructions, visit the [Convex deployment guide](https://docs.convex.dev/production/hosting/).
+
+## 📝 License
+
+This project is open source and available under the MIT License.
 
 ## Credits
 
