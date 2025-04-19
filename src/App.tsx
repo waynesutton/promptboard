@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
+import { ExternalLink } from "lucide-react";
 
 const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
 const cookingWords = [
@@ -193,9 +194,12 @@ function App() {
   const handleCopy = () => {
     // Construct the URL for the specific image page/modal view if applicable
     // For now, just copying the ID as before
-    const textToCopy = modalImageId ? modalImageId : "";
-    if (textToCopy) {
-      navigator.clipboard.writeText(textToCopy);
+    // const textToCopy = modalImageId ? modalImageId : "";
+    // Construct the full URL
+    if (modalImageId) {
+      const baseUrl = window.location.origin;
+      const urlToCopy = `${baseUrl}?imageId=${modalImageId}`;
+      navigator.clipboard.writeText(urlToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -366,15 +370,8 @@ function App() {
               <button
                 onClick={handleCopy}
                 className="flex items-center gap-1 text-gray-700 hover:text-green-600">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
-                {copied ? "Copied!" : "Copy ID"}
+                <ExternalLink className="w-5 h-5" />
+                {copied ? "Copied!" : "Copy Link"}
               </button>
             </div>
           </div>
