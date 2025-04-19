@@ -3,6 +3,7 @@ import { useAction, useMutation, useQuery, usePaginatedQuery } from "convex/reac
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { ExternalLink } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
 const CONVEX_LOGO_ID = "kg22dhgjcrwasz9vpntxqj0q157eag1p";
@@ -158,6 +159,7 @@ function Home() {
   const [userName, setUserName] = useState("");
   const [copied, setCopied] = useState(false);
   const [showGreatnessModal, setShowGreatnessModal] = useState(false);
+  const [searchParams] = useSearchParams();
 
   // Queries
   const {
@@ -187,6 +189,20 @@ function Home() {
   const addComment = useMutation(api.gallery.addComment);
   const addLike = useMutation(api.gallery.addLike);
 
+  // Effect to open modal based on URL query parameter on initial load
+  useEffect(() => {
+    const imageIdFromUrl = searchParams.get("imageId");
+    // Basic check: Ensure it's a non-empty string.
+    // Convex IDs have a specific format, but a simple string check is likely sufficient here.
+    if (imageIdFromUrl && typeof imageIdFromUrl === "string") {
+      // Attempt to cast to Id<"gallery"> - This doesn't validate existence,
+      // but sets the state to trigger modal logic.
+      setModalImageId(imageIdFromUrl as Id<"gallery">);
+    }
+    // This effect should only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array ensures it runs only once
+
   // Cycle through cooking words during generation
   useEffect(() => {
     if (isGenerating) {
@@ -205,7 +221,7 @@ function Home() {
   }, [isLimitReached]);
 
   const handleGenerateImage = async () => {
-    if (!prompt || isLimitReached) return; // Prevent generation if limit reached
+    if (!prompt || isLimitReached) return;
     setIsGenerating(true);
     try {
       const result = await generateImage({ prompt, style: selectedStyle });
@@ -244,7 +260,7 @@ function Home() {
   const handleCopy = () => {
     if (modalImageId) {
       const baseUrl = window.location.origin;
-      const urlToCopy = `${baseUrl}?imageId=${modalImageId}`;
+      const urlToCopy = `${baseUrl}/?imageId=${modalImageId}`;
       navigator.clipboard.writeText(urlToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -259,10 +275,12 @@ function Home() {
   useEffect(() => {
     if (modalImageResult?.imageUrl) {
       setModalImage(modalImageResult.imageUrl);
-    } else if (modalImageId && !modalImageResult?.imageUrl) {
+    } else if (modalImageId && !modalImageResult?.imageUrl && modalImageData) {
+      setModalImage(undefined);
+    } else if (modalImageId && !modalImageData) {
       setModalImage(undefined);
     }
-  }, [modalImageId, modalImageResult?.imageUrl]);
+  }, [modalImageId, modalImageResult?.imageUrl, modalImageData]);
 
   return (
     <div className="min-h-screen bg-[#F3F4F6] flex flex-col">
@@ -281,14 +299,13 @@ function Home() {
                 : "Add to the 1 million. Enter your prompt..."
             }
             className="w-96 px-4 py-2 bg-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isLimitReached} // Disable input when limit is reached
+            disabled={isLimitReached}
           />
           <select
             value={selectedStyle}
             onChange={(e) => setSelectedStyle(e.target.value)}
             className="px-4 py-2 bg-white rounded-lg shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isLimitReached} // Disable select when limit is reached
-          >
+            disabled={isLimitReached}>
             <option value="Studio Laika">Studio Laika</option>
             <option value="3dsoft">3D Soft</option>
             <option value="Ghibli">Ghibli</option>
@@ -300,7 +317,7 @@ function Home() {
           </select>
           <button
             onClick={handleGenerateImage}
-            disabled={isGenerating || isLimitReached} // Disable button when generating or limit reached
+            disabled={isGenerating || isLimitReached}
             className="px-6 py-2 bg-[#EB2E2A] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
             {isGenerating ? "Generating..." : "Generate"}
           </button>
@@ -323,17 +340,16 @@ function Home() {
           ))}
         </div>
 
-        {galleryStatus === "CanLoadMore" &&
-          !isLimitReached && ( // Hide button if limit reached
-            <div className="text-center my-8">
-              <button
-                onClick={() => loadMore(1000)} // Load 1000 more items
-                disabled={galleryStatus === "LoadingMore"}
-                className="px-6 py-2 bg-[#EB2E2A] text-white rounded-lg hover:bg-[#cf2925] disabled:opacity-50">
-                {galleryStatus === "LoadingMore" ? "Loading..." : "Load More"}
-              </button>
-            </div>
-          )}
+        {galleryStatus === "CanLoadMore" && !isLimitReached && (
+          <div className="text-center my-8">
+            <button
+              onClick={() => loadMore(1000)}
+              disabled={galleryStatus === "LoadingMore"}
+              className="px-6 py-2 bg-[#EB2E2A] text-white rounded-lg hover:bg-[#cf2925] disabled:opacity-50">
+              {galleryStatus === "LoadingMore" ? "Loading..." : "Load More"}
+            </button>
+          </div>
+        )}
         {galleryStatus === "Exhausted" && !isLimitReached && (
           <p className="text-center text-gray-500 my-8">No more images to load.</p>
         )}
