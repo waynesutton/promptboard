@@ -137,7 +137,10 @@ Learn more about the concepts and best practices behind Convex:
 
 ## Hosting
 
-For more detailed instructions, visit the [Convex deployment guide](https://docs.convex.dev/production/hosting/).
+- Netlify for hosting
+- Instructions, visit the [Convex deployment guide](https://docs.convex.dev/production/hosting/netlify/).
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/cc50e443-6740-413f-834a-e23245f08b6f/deploy-status)](https://app.netlify.com/sites/1millionprompts/deploys)
 
 ## 📝 License
 

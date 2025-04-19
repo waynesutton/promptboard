@@ -712,7 +712,7 @@ function Home() {
         <FooterContent getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} />
         <div className="text-center text-sm text-gray-500 pb-4">
           <a href="/dashboard" className="hover:underline">
-            dashboard
+            View Dashboard
           </a>
         </div>
       </footer>
