@@ -220,6 +220,33 @@ function Home() {
     }
   }, [isLimitReached]);
 
+  // Effect to handle Escape key press for closing modals
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (showCommentModal) {
+          setShowCommentModal(false);
+        } else if (modalImageId) {
+          setModalImageId(null);
+          setModalImage(undefined); // Clear image state too
+          // Optionally clear URL param: window.history.pushState({}, '', '/');
+        } else if (showGreatnessModal) {
+          setShowGreatnessModal(false);
+        }
+      }
+    };
+
+    // Add event listener only if a modal is open
+    if (modalImageId || showCommentModal || showGreatnessModal) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    // Cleanup function to remove the event listener
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [modalImageId, showCommentModal, showGreatnessModal]); // Re-run if any modal state changes
+
   const handleGenerateImage = async () => {
     if (!prompt || isLimitReached) return;
     setIsGenerating(true);
@@ -323,7 +350,7 @@ function Home() {
           </button>
         </div>
         <div className="flex items-center gap-4">
-          <span className="font-['Chakra_Petch'] font-light text-xl text-[#6B7280]">
+          <span className="font-['Chakra_Petch'] font-bold text-xl text-[#6B7280]">
             {galleryCount.toLocaleString("en-US", { minimumIntegerDigits: 7, useGrouping: true })}
           </span>
         </div>

@@ -13,7 +13,7 @@ interface DashboardGalleryDoc {
   prompt: string;
   aiResponse: string;
   likes: number;
-  commentCount: number;
+  commentCount?: number; // Make optional to fix linter error
 }
 
 // Shared Header Component (assuming it might be needed elsewhere or for consistency)
@@ -30,7 +30,7 @@ function Header() {
       {/* Add any other static header elements needed, like nav links if any */}
       {/* Display count in the header for consistency with Home page */}
       <div className="flex items-center gap-4">
-        <span className="font-['Chakra_Petch'] font-light text-xl text-[#6B7280]">
+        <span className="font-['Chakra_Petch'] font-bold text-xl text-[#6B7280]">
           {galleryCount.toLocaleString("en-US", {
             minimumIntegerDigits: 7,
             useGrouping: true,
@@ -145,7 +145,18 @@ function DataTable({ data, columns, activeTab }: DataTableProps) {
           {data.map((item) => (
             <tr key={item._id}>
               {columns.includes("Prompt") && (
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.prompt}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {/* Wrap prompt in a link */}
+                  <a
+                    href={`/?imageId=${item._id}`}
+                    target="_blank" // Open in new tab
+                    rel="noopener noreferrer"
+                    className="hover:underline">
+                    {" "}
+                    {/* Underline on hover only */}
+                    {item.prompt}
+                  </a>
+                </td>
               )}
               {columns.includes("Style") && (
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.style}</td>
@@ -155,7 +166,7 @@ function DataTable({ data, columns, activeTab }: DataTableProps) {
               )}
               {columns.includes("Comments") && (
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.commentCount}
+                  {item.commentCount ?? 0} {/* Handle optional commentCount */}
                 </td>
               )}
               {columns.includes("Date Submitted") && (
