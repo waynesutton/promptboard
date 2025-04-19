@@ -7,6 +7,8 @@ import { useSearchParams } from "react-router-dom";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useGesture, FullGestureState } from "@use-gesture/react";
 import { throttle } from "lodash";
+import FooterContent from "./components/FooterContent";
+import Header from "./components/Header";
 
 // Remove logo IDs
 // const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
@@ -179,43 +181,6 @@ function GalleryImageItem({ imageDoc, onClick, scrollScale }: GalleryImageItemPr
   );
 }
 // New component to render a single gallery image end
-
-// Reusable Footer Content Component - Remove props
-function FooterContent() {
-  return (
-    <div className="text-center py-4 mt-5">
-      <div className="text-sm text-[#6B7280] mb-2">
-        Cooked on
-        <a
-          href="https://convex.link/1millchefs"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-1 hover:underline">
-          Convex Chef
-        </a>{" "}
-        with a splash of
-        <a
-          href="https://openai.com/?utm_source=convexchef1millionprompts"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-1 hover:underline">
-          openai
-        </a>{" "}
-        DALL·E 3
-      </div>
-      <div className="flex items-center justify-center gap-4">
-        {/* Use static path for Convex logo */}
-        <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
-          <img src="/convex-black.svg" alt="Convex Logo" className="h-3" />
-        </a>
-        {/* Use static path for Chef logo */}
-        <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
-          <img src="/chef.svg" alt="Chef Logo" className="h-6" />
-        </a>
-      </div>
-    </div>
-  );
-}
 
 function Home() {
   // States
@@ -428,62 +393,48 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-[#F3F4F6] flex flex-col">
-      {/* Responsive Header */}
-      <header className="flex flex-col md:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-4 sticky top-0 bg-[#F3F4F6] z-10">
-        {/* Title (Order 1 on all screens) */}
-        <h1 className="font-['Chakra_Petch'] font-light text-2xl sm:text-3xl text-[#0F0F0F] whitespace-nowrap order-1">
-          1 million prompts
-        </h1>
-
-        {/* Controls Group (Order 2 on all screens) */}
-        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full md:w-auto order-2">
-          <input
-            type="text"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder={
-              isLimitReached
-                ? "1 million prompts reached!"
-                : "Add to the 1 million. Enter your prompt..."
-            }
-            // Responsive width: full on small, adjusts medium+, max large
-            className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none bg-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isLimitReached}
-          />
-          {/* Inner group for select + button to ensure they stay together */}
-          <div className="flex items-stretch gap-2 sm:gap-4 w-full sm:w-auto">
-            <select
-              value={selectedStyle}
-              onChange={(e) => setSelectedStyle(e.target.value)}
-              // Allow select to grow slightly on smallest screens if needed, but fixed otherwise
-              className="flex-grow sm:flex-grow-0 px-4 py-2 bg-white rounded-lg shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isLimitReached}>
-              <option value="Studio Laika">Studio Laika</option>
-              <option value="3dsoft">3D Soft</option>
-              <option value="Ghibli">Ghibli</option>
-              <option value="80s Anime">80s Anime</option>
-              <option value="T206 Vintage">T206 Vintage</option>
-              <option value="futuristic">Futuristic</option>
-              <option value="b&w">B&W</option>
-              <option value="convex">Convex</option>
-            </select>
-            <button
-              onClick={handleGenerateImage}
-              disabled={isGenerating || isLimitReached}
-              // Adjust padding slightly on smaller screens if needed, keep text wrap prevention
-              className="px-4 sm:px-6 py-2 bg-[#EB2E2A] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
-              {isGenerating ? "Generating..." : "Generate"}
-            </button>
-          </div>
+      {/* Use the reusable Header component */}
+      <Header galleryCount={galleryCount}>
+        {/* Pass controls as children */}
+        <input
+          type="text"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder={
+            isLimitReached
+              ? "1 million prompts reached!"
+              : "Add to the 1 million. Enter your prompt..."
+          }
+          // Responsive width: full on small, adjusts medium+, max large
+          className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none bg-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isLimitReached}
+        />
+        {/* Inner group for select + button to ensure they stay together */}
+        <div className="flex items-stretch gap-2 sm:gap-4 w-full sm:w-auto">
+          <select
+            value={selectedStyle}
+            onChange={(e) => setSelectedStyle(e.target.value)}
+            // Allow select to grow slightly on smallest screens if needed, but fixed otherwise
+            className="flex-grow sm:flex-grow-0 px-4 py-2 bg-white rounded-lg shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLimitReached}>
+            <option value="Studio Laika">Studio Laika</option>
+            <option value="3dsoft">3D Soft</option>
+            <option value="Ghibli">Ghibli</option>
+            <option value="80s Anime">80s Anime</option>
+            <option value="T206 Vintage">T206 Vintage</option>
+            <option value="futuristic">Futuristic</option>
+            <option value="b&w">B&W</option>
+            <option value="convex">Convex</option>
+          </select>
+          <button
+            onClick={handleGenerateImage}
+            disabled={isGenerating || isLimitReached}
+            // Adjust padding slightly on smaller screens if needed, keep text wrap prevention
+            className="px-4 sm:px-6 py-2 bg-[#EB2E2A] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
+            {isGenerating ? "Generating..." : "Generate"}
+          </button>
         </div>
-
-        {/* Count (Order 3 on all screens) */}
-        <div className="flex items-center gap-2 sm:gap-4 order-3">
-          <span className="font-['Chakra_Petch'] font-bold text-lg sm:text-xl text-[#6B7280]">
-            {galleryCount.toLocaleString("en-US", { minimumIntegerDigits: 7, useGrouping: true })}
-          </span>
-        </div>
-      </header>
+      </Header>
 
       <main className="flex-1 px-6">
         <motion.div
@@ -706,11 +657,6 @@ function Home() {
       <footer className="mt-auto">
         {/* Call FooterContent without props */}
         <FooterContent />
-        <div className="text-center text-sm text-gray-500 pb-4">
-          <a href="/dashboard" className="hover:underline">
-            View Dashboard
-          </a>
-        </div>
       </footer>
     </div>
   );

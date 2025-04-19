@@ -9,7 +9,7 @@
         "Create Convex project",
         "Set up React + Vite",
         "Configure TailwindCSS",
-        "Add OpenAI API key to environment"
+        "Add openai API key to environment"
       ]
     },
     {
@@ -17,7 +17,7 @@
       "name": "Backend Setup",
       "tasks": [
         "Create gallery schema",
-        "Implement OpenAI integration",
+        "Implement openai integration",
         "Set up image processing",
         "Create gallery mutations"
       ]

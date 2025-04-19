@@ -84,7 +84,7 @@ function Header() {
             target="_blank"
             rel="noopener noreferrer"
             className="ml-1 hover:underline">
-            openai
+            OpenAI
           </a>{" "}
           DALL·E 3
         </div>

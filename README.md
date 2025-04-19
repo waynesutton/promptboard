@@ -1,8 +1,8 @@
-# 1 Million Prompts | Track and generate AI images with OpenAI DALL·E 3 on Convex, Cooked with Chef
+# 1 Million Prompts | Track and generate AI images with openai DALL·E 3 on Convex, Cooked with Chef
 
 ## About
 
-1 Million Prompts is an AI image generator built on Convex, Convex Chef, and OpenAI DALL·E 3 where every prompt counts toward a shared goal: generating one million images.
+1 Million Prompts is an AI image generator built on Convex, Convex Chef, and openai DALL·E 3 where every prompt counts toward a shared goal: generating one million images.
 Create and share AI art, track progress in real-time, and explore a living gallery of prompts from the community.
 It's not just an app—it's a global race to one million
 
@@ -11,7 +11,7 @@ It's not just an app—it's a global race to one million
 - **AI Image Generation**:
 
   - Input custom text prompts to describe the desired image.
-  - Utilize OpenAI's DALL·E 3 model for high-quality image creation.
+  - Utilize openai's DALL·E 3 model for high-quality image creation.
   - Select from a diverse range of predefined artistic styles (see below).
   - Monitor generation progress with a real-time loading indicator featuring cycling images and cooking-themed status words.
 
@@ -54,7 +54,7 @@ It's not just an app—it's a global race to one million
 - Frontend: React + Vite
 - Backend: Convex
 - Styling: TailwindCSS
-- AI: OpenAI DALL-E 3
+- AI: openai DALL-E 3
 - Language: TypeScript
 
 ## Getting Started
@@ -62,16 +62,16 @@ It's not just an app—it's a global race to one million
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Set up environment variables:
-   - Add OpenAI API key to Convex environment
+   - Add openai API key to Convex environment
 4. Start development server: `npm run dev`
 
 ## Environment Setup
 
-Add your OpenAI API key to Convex:
+Add your openai API key to Convex:
 
 1. Open Convex dashboard
 2. Go to Settings
-3. Add `OPENAI_API_KEY` environment variable
+3. Add `openai_API_KEY` environment variable
 
 ## Usage
 
