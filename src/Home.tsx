@@ -239,6 +239,7 @@ function Home() {
   const [showGreatnessModal, setShowGreatnessModal] = useState(false);
   const [searchParams] = useSearchParams();
   const [scrollScale, setScrollScale] = useState(1);
+  const [loadingImageIndex, setLoadingImageIndex] = useState(0);
 
   // Queries
   const {
@@ -283,15 +284,40 @@ function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures it runs only once
 
-  // Cycle through cooking words during generation
+  // Query to get the URL for the currently cycling loading image
+  const loadingStorageId =
+    isGenerating && galleryItems.length > 0
+      ? galleryItems[loadingImageIndex % galleryItems.length]?.storageId // Use modulo and optional chaining
+      : null;
+  const loadingImageResult = useQuery(
+    api.gallery.getImage,
+    loadingStorageId ? { imageId: loadingStorageId } : "skip"
+  );
+
+  // Effect to cycle cooking words during generation
   useEffect(() => {
+    let wordInterval: NodeJS.Timeout | undefined;
     if (isGenerating) {
-      const interval = setInterval(() => {
+      wordInterval = setInterval(() => {
         setCurrentWord((prev) => (prev + 1) % cookingWords.length);
-      }, 2000);
-      return () => clearInterval(interval);
+      }, 2000); // Keep word cycle same
     }
+    return () => clearInterval(wordInterval);
   }, [isGenerating]);
+
+  // Effect to cycle through gallery images during generation
+  useEffect(() => {
+    let imageCycleInterval: NodeJS.Timeout | undefined;
+    if (isGenerating && galleryItems.length > 0) {
+      // Reset index when generation starts if gallery has items
+      setLoadingImageIndex(0);
+      imageCycleInterval = setInterval(() => {
+        // Increment index, relying on modulo operator when accessing the array
+        setLoadingImageIndex((prevIndex) => prevIndex + 1);
+      }, 3000); // Change image every 3 seconds
+    }
+    return () => clearInterval(imageCycleInterval); // Clear interval on cleanup
+  }, [isGenerating, galleryItems.length]); // Re-run if isGenerating or gallery length changes
 
   // Show greatness modal when limit is reached
   useEffect(() => {
@@ -483,23 +509,36 @@ function Home() {
       </main>
 
       {isGenerating && (
-        <div className="fixed inset-0 bg-gray-100/75 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-100/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="text-center">
-            <svg className="w-16 h-16 text-gray-700 animate-spin mx-auto" viewBox="0 0 10870 10946">
-              <path
-                d="M6868.76 8627.42C8487.29 8450.74 10013.2 7603.18 10853.3 6188.51C10455.5 9687.49 6562.35 11899.1 3384.6 10541.2C3091.79 10416.4 2839.74 10208.9 2666.77 9942.01C1952.64 8839.93 1717.89 7437.62 2055.19 6165.03C3018.89 7799.62 4978.42 8801.63 6868.76 8627.42Z"
-                fill="#F3B01C"
+            {/* Conditional Image Display */}
+            {loadingImageResult?.imageUrl ? (
+              <img
+                src={loadingImageResult.imageUrl}
+                alt="Loading..."
+                className="w-48 h-48 sm:w-64 sm:h-64 object-cover mx-auto mb-4 rounded-lg shadow-xl animate-pulse" // Adjusted styling
               />
-              <path
-                d="M1995.82 5138.31C1339.76 6628.34 1311.35 8372.89 2115.67 9808.56C-714.901 7715.6 -684.013 3236.85 2081.07 1164.89C2336.83 973.381 2640.76 859.713 2959.53 842.416C4270.41 774.462 5602.3 1272.38 6536.35 2200.25C4638.6 2218.78 2790.26 3413.53 1995.82 5138.31Z"
-                fill="#8D2676"
-              />
-              <path
-                d="M7451.92 2658.62C6494.39 1346.5 4995.71 453.219 3353.71 426.038C6527.75 -989.865 10432 1305.73 10857 4699.69C10896.5 5014.75 10844.6 5335.98 10702.6 5620.15C10109.5 6803.78 9009.91 7721.77 7724.97 8061.53C8666.43 6345.4 8550.29 4248.73 7451.92 2658.62Z"
-                fill="#EE342F"
-              />
-            </svg>
-            <div className="mt-4 text-black font-['Chakra_Petch'] font-bold">
+            ) : (
+              // Fallback spinner if no image or gallery is empty
+              <svg
+                className="w-16 h-16 text-gray-700 animate-spin mx-auto mb-4"
+                viewBox="0 0 10870 10946">
+                {/* SVG paths remain the same */}
+                <path
+                  d="M6868.76 8627.42C8487.29 8450.74 10013.2 7603.18 10853.3 6188.51C10455.5 9687.49 6562.35 11899.1 3384.6 10541.2C3091.79 10416.4 2839.74 10208.9 2666.77 9942.01C1952.64 8839.93 1717.89 7437.62 2055.19 6165.03C3018.89 7799.62 4978.42 8801.63 6868.76 8627.42Z"
+                  fill="#F3B01C"
+                />
+                <path
+                  d="M1995.82 5138.31C1339.76 6628.34 1311.35 8372.89 2115.67 9808.56C-714.901 7715.6 -684.013 3236.85 2081.07 1164.89C2336.83 973.381 2640.76 859.713 2959.53 842.416C4270.41 774.462 5602.3 1272.38 6536.35 2200.25C4638.6 2218.78 2790.26 3413.53 1995.82 5138.31Z"
+                  fill="#8D2676"
+                />
+                <path
+                  d="M7451.92 2658.62C6494.39 1346.5 4995.71 453.219 3353.71 426.038C6527.75 -989.865 10432 1305.73 10857 4699.69C10896.5 5014.75 10844.6 5335.98 10702.6 5620.15C10109.5 6803.78 9009.91 7721.77 7724.97 8061.53C8666.43 6345.4 8550.29 4248.73 7451.92 2658.62Z"
+                  fill="#EE342F"
+                />
+              </svg>
+            )}
+            <div className="mt-4 text-black font-['Chakra_Petch'] font-bold text-lg">
               {cookingWords[currentWord]}
             </div>
           </div>
