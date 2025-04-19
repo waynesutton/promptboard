@@ -1,8 +1,15 @@
 import { v } from "convex/values";
-import { action, internalMutation, mutation, query } from "./_generated/server";
+import {
+  action,
+  internalMutation,
+  mutation,
+  query,
+  internalAction, // Added internalAction import if processImage uses it
+} from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import OpenAI from "openai";
 import { internal } from "./_generated/api"; // Import internal API
+import { paginationOptsValidator } from "convex/server"; // Import pagination validator
 
 // System prompts for different styles
 export const SYSTEM_PROMPTS = {
@@ -113,21 +120,14 @@ export const internalSaveProcessedImage = internalMutation({
   },
 });
 
-// List gallery images
+// List gallery images with pagination
 export const listGallery = query({
-  args: {},
-  handler: async (ctx) => {
-    // Return only the documents, URLs will be fetched client-side per item
-    const images = await ctx.db.query("gallery").order("desc").collect();
+  args: { paginationOpts: paginationOptsValidator }, // Revert: Keep paginationOpts required
+  handler: async (ctx, args) => {
+    // Return paginated results
+    const images = await ctx.db.query("gallery").order("desc").paginate(args.paginationOpts); // Use paginate()
     return images;
-    /* Remove the URL fetching part
-    return Promise.all(
-      images.map(async (img) => ({
-        ...img,
-        imageUrl: await ctx.storage.getUrl(img.storageId),
-      }))
-    );
-    */
+    // No need to fetch URLs here anymore
   },
 });
 
