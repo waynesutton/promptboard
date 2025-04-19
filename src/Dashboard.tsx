@@ -17,32 +17,88 @@ interface DashboardGalleryDoc {
   clicks: number; // Add clicks field
 }
 
-// Shared Header Component (assuming it might be needed elsewhere or for consistency)
-// If Header is only used here, it could be defined directly within Dashboard
-function Header() {
-  // Re-use galleryCount query here if Header is separate and needs it
+// --- Modified Header Component ---
+// Add props for logo data
+interface HeaderProps {
+  getConvexLogo: { imageUrl?: string | null } | null | undefined;
+  getChefLogo: { imageUrl?: string | null } | null | undefined;
+}
+
+function Header({ getConvexLogo, getChefLogo }: HeaderProps) {
   const galleryCount = useQuery(api.gallery.getGalleryCount) || 0;
 
   return (
-    <header className="flex items-center justify-between px-6 py-4">
-      <h1 className="font-['Chakra_Petch'] font-light text-[32px] text-[#0F0F0F]">
-        <a href="/">1 million prompts</a>
-      </h1>
-      {/* Add any other static header elements needed, like nav links if any */}
-      {/* Display count in the header for consistency with Home page */}
-      <div className="flex items-center gap-4">
-        <span className="font-['Chakra_Petch'] font-bold text-xl text-[#6B7280]">
+    // Main header container: flex, space-between, items-center
+    <header className="flex items-center justify-between gap-4 px-4 sm:px-6 py-3 border-none">
+      {/* Left: Title */}
+      <div className="flex-none">
+        <h1 className="font-['Chakra_Petch'] font-light text-2xl sm:text-3xl text-[#0F0F0F] whitespace-nowrap">
+          <a href="/">1 million prompts</a>
+        </h1>
+      </div>
+
+      {/* Center: Counter */}
+      {/* flex-grow allows it to take up space, text-center centers the span */}
+      <div className="flex-grow text-center px-4">
+        <span className="font-['Chakra_Petch'] font-bold text-xl  text-[#6B7280]">
           {galleryCount.toLocaleString("en-US", {
             minimumIntegerDigits: 7,
             useGrouping: true,
           })}
         </span>
       </div>
+
+      {/* Right: Logos and Text */}
+      {/* flex-none keeps it from growing, changed to vertical stacking */}
+      <div className="flex-none flex flex-col items-end gap-1">
+        {" "}
+        {/* Changed to flex-col, items-end, reduced gap */}
+        {/* Logos remain on top */}
+        <div className="flex items-center justify-center gap-2">
+          {getConvexLogo?.imageUrl && (
+            <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
+              <img src={getConvexLogo.imageUrl} alt="Convex Logo" className="h-4" />{" "}
+              {/* Smaller height */}
+            </a>
+          )}
+          {getChefLogo?.imageUrl && (
+            <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
+              <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-9" />{" "}
+              {/* Smaller height */}
+            </a>
+          )}
+        </div>
+        {/* "Cooked on..." text - now below logos, single line */}
+        <div className="text-l text-right text-[#6B7280] hidden md:block">
+          {" "}
+          {/* Hide on smaller screens if needed */}
+          Cooked on
+          <a
+            href="https://convex.link/1millchefs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1 hover:underline">
+            Convex Chef
+          </a>{" "}
+          {/* Removed <br /> */}
+          with a splash of
+          <a
+            href="https://openai.com/?utm_source=convexchef1millionprompts"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1 hover:underline">
+            openai
+          </a>{" "}
+          DALL·E 3
+        </div>
+      </div>
     </header>
   );
 }
+// --- End of Modified Header Component ---
 
-// Shared Footer Component (copied from Home.tsx for reuse)
+// Remove or comment out the separate FooterContent component if no longer needed elsewhere
+/*
 const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
 const CONVEX_LOGO_ID = "kg22dhgjcrwasz9vpntxqj0q157eag1p";
 
@@ -88,6 +144,10 @@ function FooterContent({ getConvexLogo, getChefLogo }: FooterContentProps) {
     </div>
   );
 }
+*/
+// Constants still needed if getImage calls remain
+const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
+const CONVEX_LOGO_ID = "kg22dhgjcrwasz9vpntxqj0q157eag1p";
 
 // Tab Component
 interface TabButtonProps {
@@ -197,7 +257,6 @@ function DataTable({ data, columns, activeTab, onPromptClick }: DataTableProps) 
 
 function Dashboard() {
   const [activeTab, setActiveTab] = useState("last20Prompts");
-  // Get the mutation function
   const incrementClicks = useMutation(api.gallery.incrementImageClicks);
 
   // Fetch data for the dashboard
@@ -208,7 +267,7 @@ function Dashboard() {
   const mostLiked = useQuery(api.gallery.getMostLikedImages);
   const mostCommented = useQuery(api.gallery.getMostCommentedImages);
 
-  // Fetch logos for footer
+  // Fetch logos for HEADER
   const getChefLogo = useQuery(api.gallery.getImage, { imageId: CHEF_LOGO_ID as Id<"_storage"> });
   const getConvexLogo = useQuery(api.gallery.getImage, {
     imageId: CONVEX_LOGO_ID as Id<"_storage">,
@@ -250,8 +309,8 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#F3F4F6] flex flex-col">
-      {/* Reusable Header */}
-      <Header />
+      {/* Pass logo data to the updated Header */}
+      <Header getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} />
 
       {/* Main Dashboard Content */}
       <main className="flex-1 px-6 py-8">
@@ -298,7 +357,6 @@ function Dashboard() {
 
         {/* Data Table Section */}
         <div className="bg-white shadow rounded-lg p-4 min-h-[400px]">
-          {/* Pass the handler to DataTable */}
           <DataTable
             data={currentData}
             columns={currentColumns}
@@ -308,9 +366,11 @@ function Dashboard() {
         </div>
       </main>
 
-      {/* Reusable Footer */}
-      <footer className="mt-auto">
-        <FooterContent getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} />
+      {/* Footer can be empty or removed if nothing else goes here */}
+      <footer className="mt-auto py-4">
+        {/* <FooterContent getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} /> */}
+        {/* Optionally add other footer content like copyright */}
+        <div className="text-center text-xs text-gray-400">Dashboard Footer</div>
       </footer>
     </div>
   );
