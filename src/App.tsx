@@ -226,7 +226,7 @@ function App() {
           1 million prompts
         </h1>
         <div className="flex items-center gap-4">
-          <span className="font-['Chakra_Petch'] font-light text-lg text-[#6B7280]">
+          <span className="font-['Chakra_Petch'] font-light text-xl text-[#6B7280]">
             {galleryCount.toLocaleString("en-US", { minimumIntegerDigits: 7, useGrouping: true })}
           </span>
         </div>
@@ -279,7 +279,7 @@ function App() {
 
       {/* Loading Modal */}
       {isLoading && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-gray-100/75 flex items-center justify-center z-50">
           <div className="text-center">
             <svg className="w-16 h-16 text-white animate-spin mx-auto" viewBox="0 0 10870 10946">
               <path
@@ -434,7 +434,24 @@ function App() {
 
       {/* Footer */}
       <footer className="text-center py-8 mt-8">
-        <div className="text-sm text-[#6B7280]">Cooked on Chef</div>
+        <div className="text-sm text-[#6B7280]">
+          Cooked on
+          <a
+            href="https://chef.convex.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1 hover:underline">
+            Convex Chef
+          </a>{" "}
+          with a splash of
+          <a
+            href="https://openai.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-1 hover:underline">
+            openai
+          </a>
+        </div>
         {getChefLogo?.imageUrl && (
           <a href="https://chef.convex.dev" target="_blank" rel="noopener noreferrer">
             <img src={getChefLogo.imageUrl} alt="Chef Logo" className="h-8 mx-auto mt-2" />
