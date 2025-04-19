@@ -298,7 +298,9 @@ function App() {
                 fill="#EE342F"
               />
             </svg>
-            <div className="mt-4 text-white font-['Chakra_Petch']">{cookingWords[currentWord]}</div>
+            <div className="mt-4 text-black font-['Chakra_Petch'] font-bold">
+              {cookingWords[currentWord]}
+            </div>
           </div>
         </div>
       )}
