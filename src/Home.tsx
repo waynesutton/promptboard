@@ -431,7 +431,7 @@ function Home() {
             disabled={isGenerating || isLimitReached}
             // Adjust padding slightly on smaller screens if needed, keep text wrap prevention
             className="px-4 sm:px-6 py-2 bg-[#EB2E2A] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
-            {isGenerating ? "Generating..." : "Generate"}
+            {isGenerating ? "Generating..." : "Add Yours"}
           </button>
         </div>
       </Header>
