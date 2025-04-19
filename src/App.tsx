@@ -254,6 +254,7 @@ function App() {
             <option value="T206 Vintage">T206 Vintage</option>
             <option value="futuristic">Futuristic</option>
             <option value="b&w">B&W</option>
+            <option value="convex">Convex</option>
           </select>
           <button
             onClick={handleGenerateImage}

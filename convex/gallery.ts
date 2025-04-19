@@ -15,6 +15,8 @@ export const SYSTEM_PROMPTS = {
     "A futuristic image with a dark, moody neon aesthetic and soft sci-fi lighting, holographic materials, glowing edges, and subtle motion-blur reflections.",
   "b&w":
     "A high-contrast black and white image with dramatic shadows and a timeless, cinematic style.",
+  convex:
+    "A modern, clean image with rounded shapes, soft shadows, and playful gradients in Convex brand colors. The style should feel developer-first and real-time reactive, with a subtle grid or node pattern in the background. Typography should be bold and geometric, evoking a high-performance backend platform.",
 };
 
 // Process image using OpenAI
