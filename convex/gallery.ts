@@ -257,6 +257,32 @@ export const incrementImageClicks = mutation({
   },
 });
 
+// Add Author Info mutation
+export const addAuthorInfo = mutation({
+  args: {
+    galleryId: v.id("gallery"),
+    authorName: v.string(),
+    authorSocialLink: v.optional(v.string()), // Social link is optional
+  },
+  handler: async (ctx, args) => {
+    // Ensure gallery item exists
+    const galleryItem = await ctx.db.get(args.galleryId);
+    if (!galleryItem) {
+      throw new Error("Gallery item not found to add author info");
+    }
+
+    // Optional: Could add a check here to prevent overwriting if needed,
+    // but the current frontend logic prevents showing the form if data exists.
+
+    await ctx.db.patch(args.galleryId, {
+      authorName: args.authorName,
+      // Ensure undefined is stored if the link is empty/null, not an empty string if desired
+      authorSocialLink: args.authorSocialLink || undefined,
+    });
+    // Optionally return something, like success: true
+  },
+});
+
 // --- Dashboard Queries ---
 
 // Get last 20 prompts

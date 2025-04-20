@@ -8,10 +8,12 @@ export default defineSchema({
     storageId: v.id("_storage"),
     style: v.string(),
     prompt: v.string(),
-    aiResponse: v.string(),
+    aiResponse: v.optional(v.string()),
     likes: v.number(),
     commentCount: v.optional(v.number()),
     clicks: v.optional(v.number()),
+    authorName: v.optional(v.string()),
+    authorSocialLink: v.optional(v.string()),
   })
     .index("by_likes", ["likes"])
     .index("by_comment_count", ["commentCount"]),

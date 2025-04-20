@@ -9,10 +9,10 @@ function Header({ galleryCount, children }: HeaderProps) {
   return (
     <header className="flex flex-col md:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-4 sticky top-0 bg-[#F3F4F6] z-10">
       {/* Title (Order 1 on all screens) */}
-      <h1 className="font-['Chakra_Petch'] font-light text-2xl sm:text-3xl text-[#0F0F0F] whitespace-nowrap order-1">
-        1 million prompts
+      <h1 className="font-['Chakra_Petch'] font-light text-2xl sm:text-2xl text-[#0F0F0F] whitespace-nowrap order-1">
+        1 Million Prompts Contest
       </h1>
-
+      {/* Title (Order 1 on all screens) ends here */}
       {/* Controls Group (Order 2 on all screens) - Passed as children */}
       {children && (
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full md:w-auto order-2">

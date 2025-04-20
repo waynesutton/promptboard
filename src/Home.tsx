@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { useAction, useMutation, useQuery, usePaginatedQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
-import { ExternalLink, Download } from "lucide-react";
+import { ExternalLink, Download, Link as LinkIcon } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import FooterContent from "./components/FooterContent";
 import Header from "./components/Header";
+import { Dialog, Transition } from "@headlessui/react";
 
 // Remove logo IDs
 // const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
@@ -71,9 +72,11 @@ interface GalleryDoc {
   storageId: Id<"_storage">;
   style: string;
   prompt: string;
-  aiResponse: string;
+  aiResponse?: string;
   likes: number;
   commentCount?: number;
+  authorName?: string;
+  authorSocialLink?: string;
 }
 
 // New component to render a single gallery image start
@@ -119,6 +122,8 @@ function Home() {
   const [showGreatnessModal, setShowGreatnessModal] = useState(false);
   const [searchParams] = useSearchParams();
   const [loadingImageIndex, setLoadingImageIndex] = useState(0);
+  const [authorNameInput, setAuthorNameInput] = useState("");
+  const [authorSocialLinkInput, setAuthorSocialLinkInput] = useState("");
 
   // Queries
   const {
@@ -149,6 +154,7 @@ function Home() {
   const generateImage = useAction(api.gallery.processImage);
   const addComment = useMutation(api.gallery.addComment);
   const addLike = useMutation(api.gallery.addLike);
+  const saveAuthorInfo = useMutation(api.gallery.addAuthorInfo);
 
   // Effect to open modal based on URL query parameter on initial load
   useEffect(() => {
@@ -240,6 +246,8 @@ function Home() {
       const result = await generateImage({ prompt, style: selectedStyle });
       if (result?.galleryId) {
         setModalImageId(result.galleryId);
+        setAuthorNameInput("");
+        setAuthorSocialLinkInput("");
       }
     } catch (error) {
       console.error("Error generating image:", error);
@@ -292,6 +300,29 @@ function Home() {
 
   const handleOpenModal = (imageDoc: GalleryDoc) => {
     setModalImageId(imageDoc._id);
+    setAuthorNameInput("");
+    setAuthorSocialLinkInput("");
+  };
+
+  const handleCloseModal = () => {
+    setModalImageId(null);
+    setModalImage(undefined);
+    setShowCommentModal(false);
+    setAuthorNameInput("");
+    setAuthorSocialLinkInput("");
+  };
+
+  const handleSaveAuthorInfo = async () => {
+    if (!modalImageId || !authorNameInput) return;
+    try {
+      await saveAuthorInfo({
+        galleryId: modalImageId,
+        authorName: authorNameInput,
+        authorSocialLink: authorSocialLinkInput || undefined,
+      });
+    } catch (error) {
+      console.error("Error saving author info:", error);
+    }
   };
 
   const handleCopy = () => {
@@ -452,11 +483,7 @@ function Home() {
           <div className="bg-white rounded-lg p-6 relative max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-black z-20"
-              onClick={() => {
-                setModalImageId(null);
-                setModalImage(undefined);
-                setShowCommentModal(false);
-              }}>
+              onClick={handleCloseModal}>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -474,7 +501,7 @@ function Home() {
                 onClick={handleDownload}
               />
             ) : (
-              <div className="w-full h-[400px] bg-none border-2 border-[#EFEFEF] flex items-center justify-center mb-4 text-gray-500">
+              <div className="w-full h-[400px] bg-gray-100 border border-gray-200 flex items-center justify-center mb-4 text-gray-500">
                 Loading image...
               </div>
             )}
@@ -487,6 +514,48 @@ function Home() {
                 <p>
                   <strong>Style:</strong> {modalImageData.style}
                 </p>
+                {modalImageData.authorName && (
+                  <p>
+                    <strong>Author:</strong> {modalImageData.authorName}
+                    {modalImageData.authorSocialLink && (
+                      <a
+                        href={modalImageData.authorSocialLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={modalImageData.authorSocialLink}
+                        className="ml-1.5 text-blue-600 hover:text-blue-800 inline-flex items-center">
+                        <LinkIcon size={14} className="mr-0.5" />
+                        Link
+                      </a>
+                    )}
+                  </p>
+                )}
+                {!modalImageData.authorName && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-xs text-gray-500 mb-2">Add author details (one time):</p>
+                    <input
+                      type="text"
+                      placeholder="Author Name *"
+                      value={authorNameInput}
+                      onChange={(e) => setAuthorNameInput(e.target.value)}
+                      className="w-full mb-2 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      required
+                    />
+                    <input
+                      type="url"
+                      placeholder="Social Profile Link (Optional)"
+                      value={authorSocialLinkInput}
+                      onChange={(e) => setAuthorSocialLinkInput(e.target.value)}
+                      className="w-full mb-2 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <button
+                      onClick={handleSaveAuthorInfo}
+                      disabled={!authorNameInput}
+                      className="w-full px-4 py-1.5 bg-[#EB2E2A] text-white text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#cf2925]">
+                      Save Author Info
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             {/* prompt, style and author for modal ends here */}
@@ -532,8 +601,14 @@ function Home() {
                 Download
               </button>
             </div>
-            {/* Call FooterContent with prop to hide dashboard link */}
-            <FooterContent hideDashboardLink={true} />
+            {/* Call FooterContent with props to hide dashboard link and show report link, passing image data */}
+            <FooterContent
+              hideDashboardLink={true}
+              showReportLink={true}
+              galleryId={modalImageData?._id}
+              prompt={modalImageData?.prompt}
+              style={modalImageData?.style}
+            />
           </div>
         </div>
       )}
