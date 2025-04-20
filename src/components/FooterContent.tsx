@@ -1,7 +1,12 @@
 import React from "react";
 
+// Define props for the component
+interface FooterContentProps {
+  hideDashboardLink?: boolean; // Optional prop to hide the dashboard link
+}
+
 // Reusable Footer Content Component
-export function FooterContent() {
+export function FooterContent({ hideDashboardLink = false }: FooterContentProps) {
   return (
     <div className="text-center py-4 mt-5">
       <div className="text-sm text-[#6B7280] mb-2">
@@ -33,12 +38,14 @@ export function FooterContent() {
           <img src="/chef.svg" alt="Chef Logo" className="h-6" />
         </a>
       </div>
-      {/* Add dashboard link back here as it's part of the standard footer */}
-      <div className="text-center text-sm text-gray-500 pt-4">
-        <a href="/dashboard" className="hover:underline">
-          View Dashboard
-        </a>
-      </div>
+      {/* remove dashboard link back here as it's part of the standard footerand I don't want it in the modal it's in the footer and not in the modal */}
+      {!hideDashboardLink && ( // Conditionally render the dashboard link
+        <div className="text-center text-sm text-gray-500 pt-4">
+          <a href="/dashboard" className="hover:underline">
+            View Dashboard
+          </a>
+        </div>
+      )}
     </div>
   );
 }

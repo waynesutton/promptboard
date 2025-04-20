@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAction, useMutation, useQuery, usePaginatedQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Download } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import FooterContent from "./components/FooterContent";
 import Header from "./components/Header";
@@ -265,6 +265,31 @@ function Home() {
     }
   };
 
+  const handleDownload = async () => {
+    if (!modalImage || !modalImageData) return;
+
+    try {
+      const response = await fetch(modalImage);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      // Create a simple filename based on prompt or ID
+      const filename = `${modalImageData.prompt.replace(/\s+/g, "_").substring(0, 20) || modalImageData._id}.png`;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl); // Clean up the blob URL
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      // Optionally show an error message to the user
+    }
+  };
+
   const handleOpenModal = (imageDoc: GalleryDoc) => {
     setModalImageId(imageDoc._id);
   };
@@ -312,6 +337,7 @@ function Home() {
           className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none bg-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={isLimitReached}
         />
+        {/* dropdown prompt selection starts here */}
         {/* Inner group for select + button to ensure they stay together */}
         <div className="flex items-stretch gap-2 sm:gap-4 w-full sm:w-auto">
           <select
@@ -336,7 +362,8 @@ function Home() {
             className="px-4 sm:px-6 py-2 bg-[#EB2E2A] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
             {isGenerating ? "Generating..." : "Add Yours"}
           </button>
-        </div>
+        </div>{" "}
+        {/* dropdown prompt selection ends here */}
       </Header>
 
       <main className="flex-1 px-6">
@@ -425,7 +452,8 @@ function Home() {
               <img
                 src={modalImage}
                 alt={modalImageData?.prompt || "Modal image"}
-                className="w-full h-auto max-h-[60vh] object-contain mb-4"
+                className="w-full h-auto max-h-[60vh] object-contain mb-4 cursor-pointer"
+                onClick={handleDownload}
               />
             ) : (
               <div className="w-full h-[400px] bg-none border-2 border-[#EFEFEF] flex items-center justify-center mb-4 text-gray-500">
@@ -474,9 +502,15 @@ function Home() {
                 <ExternalLink className="w-5 h-5" />
                 {copied ? "Copied!" : "Copy Link"}
               </button>
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-1 text-gray-700 hover:text-purple-600">
+                <Download className="w-5 h-5" />
+                Download
+              </button>
             </div>
-            {/* Call FooterContent without props */}
-            <FooterContent />
+            {/* Call FooterContent with prop to hide dashboard link */}
+            <FooterContent hideDashboardLink={true} />
           </div>
         </div>
       )}
@@ -555,7 +589,7 @@ function Home() {
       )}
 
       <footer className="mt-auto">
-        {/* Call FooterContent without props */}
+        {/* Call FooterContent without props to show dashboard link */}
         <FooterContent />
       </footer>
     </div>

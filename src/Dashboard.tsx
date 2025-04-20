@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
+import FooterContent from "./components/FooterContent"; // Import FooterContent
 
 // Define the type for a gallery document for the dashboard
 // Include all fields needed for the tables, including clicks
@@ -365,9 +366,8 @@ function Dashboard() {
 
       {/* Footer can be empty or removed if nothing else goes here */}
       <footer className="mt-auto py-4">
-        {/* <FooterContent getConvexLogo={getConvexLogo} getChefLogo={getChefLogo} /> */}
-        {/* Optionally add other footer content like copyright */}
-        <div className="text-center text-xs text-gray-400">Dashboard Footer</div>
+        {/* Use the shared FooterContent component */}
+        <FooterContent />
       </footer>
     </div>
   );
