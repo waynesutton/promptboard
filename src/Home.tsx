@@ -478,6 +478,7 @@ function Home() {
                 Loading image...
               </div>
             )}
+            {/* prompt, style and author for modal starts here */}
             {modalImageData && (
               <div className="mb-4 text-sm">
                 <p>
@@ -488,6 +489,8 @@ function Home() {
                 </p>
               </div>
             )}
+            {/* prompt, style and author for modal ends here */}
+            {/* comment for modal starts here */}
             <div className="flex items-center justify-center gap-6 mb-4">
               <button
                 onClick={handleLike}
@@ -501,6 +504,7 @@ function Home() {
                 </svg>
                 {modalImageData?.likes ?? 0}
               </button>
+              {/* comment for modal starts here */}
               <button
                 onClick={() => setShowCommentModal(true)}
                 className="flex items-center gap-1 text-gray-700 hover:text-blue-600">
@@ -514,6 +518,7 @@ function Home() {
                 </svg>
                 {modalImageData?.commentCount ?? (getComments ? getComments.length : 0)}
               </button>
+              {/* comment for modal end here */}
               <button
                 onClick={handleCopy}
                 className="flex items-center gap-1 text-gray-700 hover:text-green-600">
