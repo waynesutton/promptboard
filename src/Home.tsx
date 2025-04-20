@@ -353,7 +353,25 @@ function Home() {
             <option value="T206 Vintage">T206 Vintage</option>
             <option value="futuristic">Futuristic</option>
             <option value="b&w">B&W</option>
+            <option value="photorealistic portrait">Photorealistic Portrait</option>
+            <option value="realism">Realism</option>
+            <option value="immersive photo-real">Immersive Photo-Real</option>
+            <option value="lifestyle realism">Lifestyle Realism</option>
+            <option value="thermal silhouette">Thermal Silhouette</option>
+            <option value="knitted toy">Knitted Toy</option>
+            <option value="sticker">Sticker</option>
+            <option value="low poly">Low Poly</option>
+            <option value="marvel">Marvel</option>
+            <option value="retro anime">Retro Anime</option>
+            <option value="pop art">Pop Art</option>
+            <option value="oil on canvas">Oil on Canvas</option>
+            <option value="pixar">Pixar</option>
+            <option value="caricature">Caricature</option>
             <option value="convex">Convex</option>
+            <option value="ai founder">AI Founder</option>
+            <option value="VC Mode Edition">VC Mode</option>
+            <option value="Infra Bro Mode">Infra Bro</option>
+            <option value="Founder Hacker Card">Founder Hacker</option>
           </select>
           <button
             onClick={handleGenerateImage}

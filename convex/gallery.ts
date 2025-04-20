@@ -19,11 +19,47 @@ export const SYSTEM_PROMPTS = {
   "80s Anime": "A 1980s anime style image.",
   "T206 Vintage": "A vintage T206 image style.",
   futuristic:
-    "A futuristic image with a dark, moody neon aesthetic and soft sci-fi lighting, holographic materials, glowing edges, and subtle motion-blur reflections.",
+    "A futuristic trading card with a dark, moody neon aesthetic and soft sci-fi lighting, holographic materials, glowing edges, and subtle motion-blur reflections.",
   "b&w":
     "A high-contrast black and white image with dramatic shadows and a timeless, cinematic style.",
+  "photorealistic portrait":
+    "A hyper-realistic portrait featuring lifelike skin textures, natural lighting, and sharp focus, resembling a high-resolution photograph captured with a professional camera.",
+  realism:
+    "An image rendered in a realistic style, emphasizing accurate lighting, textures, and proportions to closely mimic real-life appearances.",
+  "immersive photo-real":
+    "A richly detailed, cinematic image that feels like a high-end photograph. Focuses on realism, motion, and depth, ideal for storytelling scenes like racing, biking, or travel photography.",
+  "lifestyle realism":
+    "A photorealistic image capturing candid everyday life—like families cooking, people laughing, or friends hanging out—lit naturally with warm tones and composed like a magazine editorial.",
+  "thermal silhouette":
+    "A digital thermal silhouette of a full-body human figure with no facial features or clothing. Uses a soft thermal gradient ({gradient_colors}) over a smooth shape, with a white glowing starburst in the chest ({intensity_center}). Brightness is focused on high heat zones ({high_heat_zones}), and the edges are blurred and gently liquified into a clean white background.",
+  "knitted toy":
+    "An image styled as a handcrafted knitted toy, featuring yarn textures, stitched details, and a soft, plush appearance.",
+  sticker:
+    "A vibrant, flat-design image with bold outlines and minimal shading, resembling a collectible sticker.",
+  "low poly":
+    "A minimalist 3D image composed of simple geometric shapes and flat shading, emulating a low-polygon aesthetic.",
+  marvel:
+    "A dynamic, comic book-style image with bold lines, dramatic poses, and vibrant colors, inspired by Marvel superheroes.",
+  "retro anime":
+    "An image capturing the essence of 1980s anime, with vintage color palettes, grainy textures, and nostalgic character designs.",
+  "pop art":
+    "A bold and colorful image featuring high contrast, Ben-Day dots, and stylized elements, reminiscent of pop art icons like Warhol and Lichtenstein.",
+  "oil on canvas":
+    "A richly textured image with visible brushstrokes and layered colors, emulating a traditional oil painting on canvas.",
+  pixar:
+    "A charming 3D animated image with expressive characters, soft lighting, and a whimsical atmosphere, characteristic of Pixar films.",
+  caricature:
+    "An exaggerated and humorous image emphasizing distinctive features, styled as a playful caricature illustration.",
   convex:
-    "A modern, clean image with rounded shapes, soft shadows, and playful gradients in Convex brand colors. The style should feel developer-first and real-time reactive, with a subtle grid or node pattern in the background. Typography should be bold and geometric, evoking a high-performance backend platform.",
+    "A clean, modern image inspired by the Convex brand. Utilize a minimalist layout with ample white space, incorporating Convex's primary colors—red (#EE342F), yellow (#F3B01C), and purple (#8D2676)—sparingly to highlight key elements. Employ the Kanit typeface for any textual content, reflecting the brand's emphasis on mathematics and programming. Integrate the Reuleaux triangle motif subtly within the design to echo the brand's logo symbolism. The overall aesthetic should convey fluency, responsiveness, and reliability, aligning with Convex's brand identity.",
+  "ai founder":
+    "Create a stylized 'AI FOUNDER MODE EDITION' anime-inspired trading card. Render a full-body anime-style character based on the uploaded photo with soft pastel tones, clean lighting, and a confident pose. Character should wear a black hoodie that says 'AI Founder Mode' and hold an iPhone or laptop. Add fun tech-themed elements like an AI logo, a framed prompt spec, sticky notes, color wheels, and a glasses-wearing alpaca. Use a beige frame, soft office background, and clean card composition. Top label: 'startup.ai // Startup Founder'. Top-right small text: 'OPEN SOURCE HUMAN | ML-TRAINED | CHEF-COOKING'. Bottom-right: full name. Subtitle: 'AI FOUNDER MODE EDITION'. Style the typography with the Kanit font and accent the layout with Convex brand colors (#EE342F, #F3B01C, #8D2676) and a Reuleaux triangle motif. Background should include faint text: 'We should use Convex'.",
+  "VC Mode Edition":
+    "A stylized conference badge-style portrait of a venture capitalist character. Render the subject in clean modern vector art with soft lighting and neutral backgrounds. Add subtle overlays like 'Fundraising Mode', coffee mugs, pitch decks, and MacBooks. Include small labels like 'seed stage only' and 'thesis-driven'. Use a tech-minimalist card layout with whitespace and Convex brand colors.",
+  "Infra Bro Mode":
+    "Create a trading card portrait of a stereotypical infrastructure engineer with dark-mode aesthetics. Use glowing terminal windows, ASCII art, Kubernetes logos, and ultra-detailed keyboards. Add text overlays like 'Self-hosted, obviously' and 'Latency Matters'. Style the background like a data center or neon-tinted co-working cave. Typography should feel tactical and custom-built.",
+  "Founder Hacker Card":
+    "A collectible image card of a hoodie-wearing hacker-founder in night-lit lighting. Character sits at a desk covered in snacks, open terminal tabs, and whiteboard sketches. Environment is gritty, but lit with ambient neon or monitor glow. Style the card with handwritten TODOs, bug lists, and a sticker-covered laptop. Blend anime grit with startup optimism. Add a badge: 'BUILD WEEKEND WINNER'.",
 };
 
 // Process image using openai
