@@ -403,7 +403,7 @@ function Home() {
           placeholder={
             isLimitReached
               ? "1 million prompts reached!"
-              : "Add to the 1 million. Enter your prompt..."
+              : "Enter your prompt to generate an image."
           }
           // Responsive width: full on small, adjusts medium+, max large
           className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none bg-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
