@@ -1,4 +1,4 @@
-# 1 Million Prompts | Track and generate AI images with openai DALL·E 3 on Convex, Cooked with Chef
+# 1 Million Prompts | Track and generate AI images with OpenAI DALL·E 3 on Convex, Cooked with Chef
 
 ## About
 
