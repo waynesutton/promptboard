@@ -4,9 +4,6 @@ import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { ExternalLink } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useGesture, FullGestureState } from "@use-gesture/react";
-import { throttle } from "lodash";
 import FooterContent from "./components/FooterContent";
 import Header from "./components/Header";
 
@@ -83,90 +80,15 @@ interface GalleryDoc {
 interface GalleryImageItemProps {
   imageDoc: GalleryDoc;
   onClick: () => void;
-  scrollScale: number;
 }
 
-function GalleryImageItem({ imageDoc, onClick, scrollScale }: GalleryImageItemProps) {
+function GalleryImageItem({ imageDoc, onClick }: GalleryImageItemProps) {
   const imageResult = useQuery(api.gallery.getImage, { imageId: imageDoc.storageId });
-  const itemRef = useRef<HTMLDivElement>(null);
-  const [isGesturing, setIsGesturing] = useState(false);
-
-  // Framer Motion values for tilt effect
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springConfig = { stiffness: 300, damping: 30, mass: 1 };
-  const rotateX = useSpring(useTransform(y, [-100, 100], [-10, 10]), springConfig);
-  const rotateY = useSpring(useTransform(x, [-100, 100], [10, -10]), springConfig);
-
-  // State for gesture scale
-  const [gestureScale, setGestureScale] = useState(1);
-
-  // Gesture handling (hover, pinch, drag for tilt)
-  useGesture(
-    {
-      // Hover (handled by framer-motion's whileHover)
-
-      // Pinch gesture for zooming
-      onPinch: ({ offset: [s], event }: FullGestureState<"pinch">) => {
-        event.preventDefault();
-        setGestureScale(s);
-      },
-      onPinchStart: () => setIsGesturing(true),
-      onPinchEnd: () => {
-        setIsGesturing(false);
-      },
-
-      // Drag/Move for tilt effect (only when not pinching)
-      onMove: ({ xy: [px, py], pinching }: FullGestureState<"move">) => {
-        if (pinching || !itemRef.current) return;
-        const rect = itemRef.current.getBoundingClientRect();
-        const absoluteX = px - rect.left - rect.width / 2;
-        const absoluteY = py - rect.top - rect.height / 2;
-        x.set(absoluteX);
-        y.set(absoluteY);
-      },
-      onMoveStart: ({ pinching }: FullGestureState<"move">) => {
-        if (!pinching) setIsGesturing(true);
-      },
-      onMoveEnd: ({ pinching }: FullGestureState<"move">) => {
-        if (!pinching) {
-          x.set(0);
-          y.set(0);
-          setIsGesturing(false);
-        }
-      },
-    },
-    {
-      target: itemRef,
-      eventOptions: { passive: false },
-      pinch: { scaleBounds: { min: 0.5, max: 2 }, rubberband: true },
-      move: {
-        // Optional: add threshold if needed
-      },
-      filterTaps: true,
-    }
-  );
-
-  // Combine scales: hover (1.1), pinch (gestureScale), scroll (scrollScale)
-  const hoverScale = 1.1;
-  const combinedScale = isGesturing ? gestureScale * scrollScale : hoverScale * scrollScale;
 
   return (
-    <motion.div
-      ref={itemRef}
+    <div
       className="aspect-square cursor-pointer bg-gray-200 border border-gray-300 overflow-hidden"
-      onClick={!isGesturing ? onClick : undefined}
-      whileHover={{ scale: 1, zIndex: 10 }}
-      style={{
-        rotateX,
-        rotateY,
-        scale: useSpring(combinedScale, springConfig),
-        perspective: "1000px",
-      }}
-      onHoverEnd={() => {
-        x.set(0);
-        y.set(0);
-      }}>
+      onClick={onClick}>
       {imageResult?.imageUrl ? (
         <img
           src={imageResult.imageUrl}
@@ -177,7 +99,7 @@ function GalleryImageItem({ imageDoc, onClick, scrollScale }: GalleryImageItemPr
       ) : (
         <div className="w-full h-full bg-gray-100"></div>
       )}
-    </motion.div>
+    </div>
   );
 }
 // New component to render a single gallery image end
@@ -196,7 +118,6 @@ function Home() {
   const [copied, setCopied] = useState(false);
   const [showGreatnessModal, setShowGreatnessModal] = useState(false);
   const [searchParams] = useSearchParams();
-  const [scrollScale, setScrollScale] = useState(1);
   const [loadingImageIndex, setLoadingImageIndex] = useState(0);
 
   // Queries
@@ -312,24 +233,6 @@ function Home() {
     };
   }, [modalImageId, showCommentModal, showGreatnessModal]); // Re-run if any modal state changes
 
-  // Effect to handle scroll for scaling effect (throttled)
-  useEffect(() => {
-    const handleScroll = throttle(() => {
-      // Simple example: scale down slightly as you scroll down
-      const scrollY = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      // Adjust this calculation for desired effect (e.g., non-linear, based on viewport height)
-      const scale = Math.max(0.8, 1 - (scrollY / (maxScroll + 1)) * 0.2); // Scale between 1 and 0.8
-      setScrollScale(scale);
-    }, 100); // Throttle to run at most every 100ms
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      handleScroll.cancel(); // Clean up throttle
-    };
-  }, []);
-
   const handleGenerateImage = async () => {
     if (!prompt || isLimitReached) return;
     setIsGenerating(true);
@@ -437,18 +340,15 @@ function Home() {
       </Header>
 
       <main className="flex-1 px-6">
-        <motion.div
-          className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1 mt-8"
-          style={{ perspective: "1000px" }}>
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1 mt-8">
           {galleryItems.map((imgDoc) => (
             <GalleryImageItem
               key={imgDoc._id.toString()}
               imageDoc={imgDoc}
               onClick={() => handleOpenModal(imgDoc)}
-              scrollScale={scrollScale}
             />
           ))}
-        </motion.div>
+        </div>
 
         {galleryStatus === "CanLoadMore" && !isLimitReached && (
           <div className="text-center my-8">
