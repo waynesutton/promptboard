@@ -401,7 +401,7 @@ function Home() {
             <option value="convex">Convex</option>
             <option value="ai founder">AI Founder</option>
             <option value="VC Mode Edition">VC Mode</option>
-            <option value="Infra Bro Mode">Infra Bro</option>
+            <option value="Infra Eng Mode">Infra Eng</option>
             <option value="Founder Hacker Card">Founder Hacker</option>
           </select>
           <button

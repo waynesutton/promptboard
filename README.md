@@ -1,10 +1,29 @@
-# 1 Million Prompts | Track and generate AI images with OpenAI DALL·E 3 on Convex, Cooked with Chef
+# 1 Million Prompts Contest
 
 ## About
 
-1 Million Prompts is an AI image generator built on Convex, Convex Chef, and openai DALL·E 3 where every prompt counts toward a shared goal: generating one million images.
-Create and share AI art, track progress in real-time, and explore a living gallery of prompts from the community.
-It's not just an app—it's a global race to one million
+**1 Million Prompts** is a community-powered AI image generator contest built with Convex, Convex Chef, and OpenAI's DALL·E 3. Every image contributes to a global goal: reaching 1,000,000 AI-generated prompts.  
+Track progress in real-time, explore a living prompt gallery, and generate images in your favorite styles—from Pixar to pop art to thermal silhouettes.
+
+This isn't just another image app. It's a vibe-coded global challenge.
+
+---
+
+## Contest
+
+Submit your best AI-generated image using one of the featured styles. You're eligible to win:
+
+- 🏆 $1,000 for most creative prompt + image
+- ❤️ Prize for most liked prompt
+- 🔥 Bonus for submitting the **1 millionth prompt**
+
+### How to enter:
+
+1. Generate an image using the app
+2. Add your prompt author name and social handle
+3. Share your image on social media
+
+Winners will also receive Convex swag and startup credits. Let the prompt cooking begin.
 
 ## Features
 
@@ -24,6 +43,25 @@ It's not just an app—it's a global race to one million
   - T206 Vintage (Early 20th-century baseball card style)
   - Futuristic (Sleek, high-tech visuals)
   - B&W (Classic black and white)
+  - Photorealistic Portrait (Hyper-realistic, detailed portraiture)
+  - Realism (Accurate lighting, textures, and proportions)
+  - Immersive Photo-Real (Richly detailed, cinematic photograph style)
+  - Lifestyle Realism (Candid everyday life, natural lighting)
+  - Thermal Silhouette (Digital thermal gradient figure)
+  - Knitted Toy (Handcrafted yarn toy aesthetic)
+  - Sticker (Vibrant, flat design with bold outlines)
+  - Low Poly (Minimalist 3D geometric shapes)
+  - Marvel (Dynamic comic book style)
+  - Retro Anime (Vintage 1980s anime visuals)
+  - Pop Art (Bold, high-contrast, stylized like Warhol)
+  - Oil on Canvas (Textured brushstrokes, layered colors)
+  - Pixar (Charming 3D animation style)
+  - Caricature (Exaggerated, humorous illustration)
+  - Convex (Clean, modern, brand-inspired minimalist design)
+  - AI Founder (Stylized anime trading card for tech founders)
+  - VC Mode Edition (Conference badge style for VCs)
+  - Infra Eng Mode (Dark-mode, tactical aesthetic for infra engineers)
+  - Founder Hacker Card (Gritty, neon-lit hacker founder vibe)
 
 - **Community Gallery & Interaction**:
 
@@ -31,6 +69,9 @@ It's not just an app—it's a global race to one million
   - Images load progressively as you scroll or via a "Load More" button.
   - Click any image to open a modal for a larger view and details (prompt, style).
   - Interact with images in the modal: Add likes, view/add comments, and copy direct shareable links.
+  - Download generated images directly from the modal.
+  - Add optional author name and social link to generated images (one time per image).
+  - Report inappropriate images via a pre-filled GitHub issue link in the modal.
 
 - **Global Goal Tracking**:
 
@@ -150,4 +191,4 @@ This project is open source and available under the MIT License.
 
 Built with [Chef](https://convex.link/1millchefs)
 
-# promptboard
+# 1 Million Prompts Contest
