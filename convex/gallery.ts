@@ -4,14 +4,15 @@ import {
   internalMutation,
   mutation,
   query,
-  internalAction, // Added internalAction import if processImage uses it
+  internalAction,
+  internalQuery,
 } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
+import { Id, Doc } from "./_generated/dataModel";
 import OpenAI from "openai";
-import { internal } from "./_generated/api"; // Import internal API
-import { paginationOptsValidator } from "convex/server"; // Import pagination validator
+import { internal } from "./_generated/api";
+import { paginationOptsValidator } from "convex/server";
 
-// System prompts for different styles
+// System prompts for different styles start
 export const SYSTEM_PROMPTS = {
   "Studio Laika": "A stop-motion-inspired image in the style of Studio Laika (Coraline, Kubo).",
   "3dsoft": "A Pixar-style 3D animated image.",
@@ -56,13 +57,17 @@ export const SYSTEM_PROMPTS = {
     "Create a stylized 'AI FOUNDER MODE EDITION' anime-inspired trading card. Render a full-body anime-style character based on the uploaded photo with soft pastel tones, clean lighting, and a confident pose. Character should wear a black hoodie that says 'AI Founder Mode' and hold an iPhone or laptop. Add fun tech-themed elements like an AI logo, a framed prompt spec, sticky notes, color wheels, and a glasses-wearing alpaca. Use a beige frame, soft office background, and clean card composition. Top label: 'startup.ai // Startup Founder'. Top-right small text: 'OPEN SOURCE HUMAN | ML-TRAINED | CHEF-COOKING'. Bottom-right: full name. Subtitle: 'AI FOUNDER MODE EDITION'. Style the typography with the Kanit font and accent the layout with Convex brand colors (#EE342F, #F3B01C, #8D2676) and a Reuleaux triangle motif. Background should include faint text: 'We should use Convex'.",
   "VC Mode Edition":
     "A stylized conference badge-style portrait of a venture capitalist character. Render the subject in clean modern vector art with soft lighting and neutral backgrounds. Add subtle overlays like 'Fundraising Mode', coffee mugs, pitch decks, and MacBooks. Include small labels like 'seed stage only' and 'thesis-driven'. Use a tech-minimalist card layout with whitespace and Convex brand colors.",
-  "Infra Eng Mode":
+  "Infra Bro Mode":
     "Create a trading card portrait of a stereotypical infrastructure engineer with dark-mode aesthetics. Use glowing terminal windows, ASCII art, Kubernetes logos, and ultra-detailed keyboards. Add text overlays like 'Self-hosted, obviously' and 'Latency Matters'. Style the background like a data center or neon-tinted co-working cave. Typography should feel tactical and custom-built.",
   "Founder Hacker Card":
     "A collectible image card of a hoodie-wearing hacker-founder in night-lit lighting. Character sits at a desk covered in snacks, open terminal tabs, and whiteboard sketches. Environment is gritty, but lit with ambient neon or monitor glow. Style the card with handwritten TODOs, bug lists, and a sticker-covered laptop. Blend anime grit with startup optimism. Add a badge: 'BUILD WEEKEND WINNER'.",
+  "pixel art":
+    "A single pixel art character in the style of a 16-bit RPG sprite, rendered at a larger scale with clear, high-resolution detail. Use soft shading, a warm muted color palette, and a 3/4 top-down perspective. The character should have realistic proportions (not chibi), with clean pixel clusters and light dithering for depth and texture. Generate one of the following: 1. A warrior in classic medieval armor with gold accents, or 2. A mage in a dark robe with glowing rune details, holding a wooden staff with a faint magical orb. No animation. No background—export as a transparent PNG or on a plain background. Maintain a strong silhouette and visual clarity, similar to character artwork from *Chained Echoes* or *Octopath Traveler*, but not limited to sprite sheet dimensions.",
 };
 
-// Process image using openai
+// System prompts for different styles end
+
+// --- processImage: Initialize client inside handler ---
 export const processImage = action({
   args: {
     prompt: v.string(),
@@ -75,45 +80,74 @@ export const processImage = action({
     aiResponse: v.string(),
   }),
   handler: async (ctx, args) => {
-    try {
-      const openai = new OpenAI({
-        apiKey: process.env.openai_API_KEY,
-      });
+    // --- Initialize OpenAI client inside the handler ---
+    console.log("[processImage] Handler started. Checking for environment variable..."); // Log start
 
+    // --- Add VERY EXPLICIT LOGGING ---
+    const keyToCheck = "openai_API_KEY";
+    const keyExists = Object.prototype.hasOwnProperty.call(process.env, keyToCheck);
+    const keyValue = process.env[keyToCheck];
+
+    console.log(`[processImage] Checking for key: '${keyToCheck}'`);
+    console.log(
+      `[processImage] Does process.env have own property '${keyToCheck}'? : ${keyExists}`
+    );
+    console.log(
+      `[processImage] Value retrieved for process.env['${keyToCheck}']: ${keyValue === undefined ? "undefined" : keyValue === null ? "null" : keyValue ? "'********'" : "'' (Empty String)"}`
+    ); // Mask value if present
+    // --- END EXPLICIT LOGGING ---
+
+    const openaiApiKey = process.env.openai_API_KEY; // Use the exact name expected
+    if (!openaiApiKey) {
+      // Throw specific error if key is missing in environment
+      console.error(
+        `[processImage] ERROR: Environment variable '${keyToCheck}' not found or is empty in process.env! Throwing error.`
+      ); // Log error before throw
+      throw new Error(`OpenAI API Key (${keyToCheck}) is not set in Convex environment variables.`);
+    }
+
+    console.log("[processImage] API key found. Initializing OpenAI client..."); // Log success before init
+    const openai = new OpenAI({ apiKey: openaiApiKey });
+    console.log("[processImage] OpenAI client initialized successfully.");
+    // --- End client initialization ---
+
+    try {
+      // --- Generate Image ---
       const systemPrompt = SYSTEM_PROMPTS[args.style as keyof typeof SYSTEM_PROMPTS];
-      const response = await openai.images.generate({
+      const imageGenPrompt = `${systemPrompt} The image should include: ${args.prompt}`;
+      const imageResponse = await openai.images.generate({
         model: "dall-e-3",
-        prompt: `${systemPrompt} The image should include: ${args.prompt}`,
+        prompt: imageGenPrompt,
         n: 1,
         size: "1024x1024",
         quality: "standard",
         response_format: "url",
       });
 
-      const imageUrlFromopenai = response.data[0]?.url;
-      if (!imageUrlFromopenai) {
-        throw new Error("No image generated by openai");
+      const imageUrlFromOpenAI = imageResponse.data[0]?.url;
+      if (!imageUrlFromOpenAI) {
+        throw new Error("No image generated by OpenAI");
       }
 
-      // Upload the generated image to Convex storage
-      const imageResponse = await fetch(imageUrlFromopenai);
-      const imageBlob = await imageResponse.blob();
+      // --- Store Image ---
+      const fetchedImage = await fetch(imageUrlFromOpenAI);
+      const imageBlob = await fetchedImage.blob();
       const storageId = await ctx.storage.store(imageBlob);
 
-      // Get the URL for the stored image
+      // --- Get Image URL ---
       const imageUrl = await ctx.storage.getUrl(storageId);
       if (!imageUrl) {
         throw new Error("Could not get image URL from storage");
       }
 
-      // Save the image details to the gallery table via an internal mutation
+      // --- Save to DB (WITHOUT embedding) ---
       const galleryId: Id<"gallery"> = await ctx.runMutation(
         internal.gallery.internalSaveProcessedImage,
         {
           storageId,
           style: args.style,
           prompt: args.prompt,
-          aiResponse: "Image generated successfully!", // Or use revised_prompt if available
+          aiResponse: "Image generated successfully!",
         }
       );
 
@@ -125,7 +159,6 @@ export const processImage = action({
       };
     } catch (error) {
       console.error("Error processing image:", error);
-      // Propagate a more specific error or handle it as needed
       if (error instanceof Error) {
         throw new Error(`Failed to process image: ${error.message}`);
       } else {
@@ -152,19 +185,18 @@ export const internalSaveProcessedImage = internalMutation({
       aiResponse: args.aiResponse ?? "",
       likes: 0,
       commentCount: 0,
-      clicks: 0, // Initialize clicks to 0
+      clicks: 0,
     });
   },
 });
 
 // List gallery images with pagination
 export const listGallery = query({
-  args: { paginationOpts: paginationOptsValidator }, // Revert: Keep paginationOpts required
+  args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
-    // Return paginated results
-    const images = await ctx.db.query("gallery").order("desc").paginate(args.paginationOpts); // Use paginate()
+    const images = await ctx.db.query("gallery").order("desc").paginate(args.paginationOpts);
+    // Return the full documents including pagination info
     return images;
-    // No need to fetch URLs here anymore
   },
 });
 
@@ -365,5 +397,55 @@ export const getMostCommentedImages = query({
       ...img,
       clicks: img.clicks ?? 0,
     }));
+  },
+});
+
+// --- NEW: Full-Text Search Query ---
+export const searchCombined = query({
+  args: { searchQuery: v.string() },
+  handler: async (ctx, args): Promise<Doc<"gallery">[]> => {
+    const cleanedQuery = args.searchQuery.trim();
+    if (!cleanedQuery) {
+      return [];
+    }
+
+    // 1. Search gallery table (prompt and authorName)
+    const galleryResults = await ctx.db
+      .query("gallery")
+      .withSearchIndex(
+        "search_all",
+        (q) =>
+          // Search both prompt and authorName fields if authorName is included in searchField
+          // Or just search prompt if authorName is only a filterField
+          q.search("prompt", cleanedQuery)
+        // Potential improvement: Combine with authorName search if desired
+        // q.search("prompt", cleanedQuery).eq("authorName", cleanedQuery) // Example if also filtering
+      )
+      .take(20); // Limit initial gallery results
+
+    // 2. Search comments table (text)
+    const commentResults = await ctx.db
+      .query("comments")
+      .withSearchIndex("search_text", (q) => q.search("text", cleanedQuery))
+      .collect(); // Collect all comment matches initially
+
+    // 3. Get unique gallery IDs from both searches
+    const galleryIdsFromPrompts = new Set(galleryResults.map((doc) => doc._id));
+    const galleryIdsFromComments = new Set(commentResults.map((doc) => doc.galleryId));
+
+    const allMatchingGalleryIds = new Set([...galleryIdsFromPrompts, ...galleryIdsFromComments]);
+
+    if (allMatchingGalleryIds.size === 0) {
+      return [];
+    }
+
+    // 4. Fetch the full gallery documents for the unique IDs
+    // Use Promise.all for potentially better performance fetching multiple documents
+    const galleryDocs = await Promise.all(
+      Array.from(allMatchingGalleryIds).map((id) => ctx.db.get(id))
+    );
+
+    // Filter out nulls (if any gallery item was deleted) and return
+    return galleryDocs.filter((doc): doc is Doc<"gallery"> => doc !== null);
   },
 });

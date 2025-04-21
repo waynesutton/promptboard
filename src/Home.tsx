@@ -384,6 +384,7 @@ function Home() {
             // Allow select to grow slightly on smallest screens if needed, but fixed otherwise
             className="flex-grow sm:flex-grow-0 px-4 py-2 bg-white rounded-lg shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isLimitReached || isGenerating}>
+            {/* New Options Start */}
             <option value="Studio Laika">Studio Laika</option>
             <option value="3dsoft">3D Soft</option>
             <option value="Ghibli">Ghibli</option>
@@ -408,8 +409,10 @@ function Home() {
             <option value="convex">Convex</option>
             <option value="ai founder">AI Founder</option>
             <option value="VC Mode Edition">VC Mode</option>
-            <option value="Infra Eng Mode">Infra Eng</option>
+            <option value="Infra Bro Mode">Infra Bro</option> {/* Adjusted display name */}
             <option value="Founder Hacker Card">Founder Hacker</option>
+            <option value="pixel art">Pixel Art</option>
+            {/* New Options End */}
           </select>
           <button
             type="submit"
