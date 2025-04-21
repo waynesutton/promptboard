@@ -97,6 +97,13 @@ function AboutModal() {
               Winners will also receive Convex swag and startup credits. Let the prompt cooking
               begin.
             </p>
+            <p className="mb-6 text-[#374151] font-['Inter']">
+              Winners will be announced on the via{" "}
+              <strong>
+                <a href="https://twitter.com/convex_dev">@convex_dev</a>
+              </strong>{" "}
+              social account after the 1 millionth prompt is submitted.
+            </p>
 
             <hr className="my-6 border-t border-[#E5E7EB]" />
 

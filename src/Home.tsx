@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
 import { useAction, useMutation, useQuery, usePaginatedQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
@@ -240,7 +240,7 @@ function Home() {
   }, [modalImageId, showCommentModal, showGreatnessModal]); // Re-run if any modal state changes
 
   const handleGenerateImage = async () => {
-    if (!prompt || isLimitReached) return;
+    if (!prompt || isLimitReached || isGenerating) return;
     setIsGenerating(true);
     try {
       const result = await generateImage({ prompt, style: selectedStyle });
@@ -254,6 +254,12 @@ function Home() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Form submission handler
+  const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Prevent default form submission (page reload)
+    handleGenerateImage(); // Call the existing image generation logic
   };
 
   const handleAddComment = async () => {
@@ -354,29 +360,30 @@ function Home() {
     <div className="min-h-screen bg-[#F3F4F6] flex flex-col">
       {/* Use the reusable Header component */}
       <Header galleryCount={galleryCount}>
-        {/* Pass controls as children */}
-        <input
-          type="text"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder={
-            isLimitReached
-              ? "1 million prompts reached!"
-              : "Enter your prompt to generate an image."
-          }
-          // Responsive width: full on small, adjusts medium+, max large
-          className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none bg-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={isLimitReached}
-        />
-        {/* dropdown prompt selection starts here */}
-        {/* Inner group for select + button to ensure they stay together */}
-        <div className="flex items-stretch gap-2 sm:gap-4 w-full sm:w-auto">
+        {/* Wrap controls in a form */}
+        <form
+          onSubmit={handleFormSubmit}
+          className="flex flex-col sm:flex-row items-stretch gap-2 sm:gap-4 w-full sm:w-auto">
+          <input
+            type="text"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder={
+              isLimitReached
+                ? "1 million prompts reached!"
+                : "Enter your prompt to generate an image."
+            }
+            // Responsive width: full on small, adjusts medium+, max large
+            className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none bg-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLimitReached || isGenerating}
+          />
+          {/* Inner group for select + button remains conceptually the same */}
           <select
             value={selectedStyle}
             onChange={(e) => setSelectedStyle(e.target.value)}
             // Allow select to grow slightly on smallest screens if needed, but fixed otherwise
             className="flex-grow sm:flex-grow-0 px-4 py-2 bg-white rounded-lg shadow-sm text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isLimitReached}>
+            disabled={isLimitReached || isGenerating}>
             <option value="Studio Laika">Studio Laika</option>
             <option value="3dsoft">3D Soft</option>
             <option value="Ghibli">Ghibli</option>
@@ -405,14 +412,14 @@ function Home() {
             <option value="Founder Hacker Card">Founder Hacker</option>
           </select>
           <button
+            type="submit"
             onClick={handleGenerateImage}
-            disabled={isGenerating || isLimitReached}
+            disabled={isGenerating || isLimitReached || !prompt}
             // Adjust padding slightly on smaller screens if needed, keep text wrap prevention
             className="px-4 sm:px-6 py-2 bg-[#EB2E2A] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
             {isGenerating ? "Generating..." : "Add Yours"}
           </button>
-        </div>{" "}
-        {/* dropdown prompt selection ends here */}
+        </form>
       </Header>
 
       <main className="flex-1 px-6">

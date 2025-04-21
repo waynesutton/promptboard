@@ -14,7 +14,6 @@ function Header({ galleryCount, children }: HeaderProps) {
         <h1 className="font-['Chakra_Petch'] font-light text-2xl sm:text-2xl text-[#0F0F0F] whitespace-nowrap">
           1 Million Prompts Contest
         </h1>
-        <AboutModal />
       </div>
       {/* Title & About Link Group ends here */}
       {/* contest about start here - Removed the centering div */}
@@ -23,6 +22,7 @@ function Header({ galleryCount, children }: HeaderProps) {
       {/* Controls Group (Order 2 on all screens) - Passed as children */}
       {children && (
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full md:w-auto order-2">
+          <AboutModal />
           {children}
         </div>
       )}
