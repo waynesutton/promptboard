@@ -15,7 +15,8 @@ import { paginationOptsValidator } from "convex/server";
 // System prompts for different styles start
 export const SYSTEM_PROMPTS = {
   "Studio Laika": "A stop-motion-inspired image in the style of Studio Laika (Coraline, Kubo).",
-  "3dsoft": "A Pixar-style 3D animated image.",
+  "3dsoft":
+    "A soft 3D illustration of the subject, isolated on a smooth, light beige background. The subject should have rounded, minimalistic shapes with subtle shading and soft ambient shadows, giving it a playful, clay-like or plasticine texture. Avoid photorealism—focus on a stylized, toy-like aesthetic. Use a soft isometric or slightly top-down perspective with smooth lighting and no harsh reflections. Render each object with realistic but simplified proportions, a matte finish, and a warm, inviting color palette. The overall tone should feel clean, calm, and tactile—suitable for product design icons, character scenes, or concept visuals.",
   Ghibli: "A Studio Ghibli-style watercolor image.",
   "80s Anime": "A 1980s anime style image.",
   "T206 Vintage": "A vintage T206 image style.",
