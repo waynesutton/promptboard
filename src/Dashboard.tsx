@@ -30,46 +30,32 @@ function Header() {
   const galleryCount = useQuery(api.gallery.getGalleryCount) || 0;
 
   return (
-    // Main header container: flex, space-between, items-center
-    <header className="flex items-center justify-between gap-4 px-4 sm:px-6 py-3 border-none">
-      {/* Left: Title */}
-      <div className="flex-none">
-        <h1 className="font-['Chakra_Petch'] font-light text-2xl sm:text-3xl text-[#0F0F0F] whitespace-nowrap">
+    // Keep base flex, adjust to col on small, row on md+
+    // Center items vertically in row view (md+), use items-center for col view (mobile)
+    <header className="flex flex-col md:flex-row items-center justify-between gap-3 px-4 py-3 md:px-6 border-none">
+      {/* Section 1: Title (Always visible, first on mobile, first on desktop) */}
+      <div className="flex-none text-center md:text-left w-full md:w-auto order-1">
+        <h1 className="font-['Chakra_Petch'] font-light text-xl sm:text-2xl md:text-3xl text-[#0F0F0F] whitespace-nowrap">
           <a href="/">1 million prompts</a>
         </h1>
       </div>
 
-      {/* Center: Counter */}
-      {/* flex-grow allows it to take up space, text-center centers the span */}
-      <div className="flex-grow text-center px-4">
-        <span className="font-['Chakra_Petch'] font-bold text-xl  text-[#6B7280]">
-          {galleryCount.toLocaleString("en-US", {
-            minimumIntegerDigits: 7,
-            useGrouping: true,
-          })}
-        </span>
-      </div>
-
-      {/* Right: Logos and Text */}
-      {/* flex-none keeps it from growing, changed to vertical stacking */}
-      <div className="flex-none flex flex-col items-end gap-1">
-        {" "}
-        {/* Changed to flex-col, items-end, reduced gap */}
-        {/* Logos remain on top */}
+      {/* Section 2: Logos and Text (Below title on mobile, last on desktop) */}
+      {/* Ensure it takes full width on mobile for centering, auto on md+ */}
+      <div className="flex-none flex flex-col items-center gap-1 w-full md:w-auto order-3 md:order-3">
         <div className="flex items-center justify-center gap-2">
-          {/* Use static path for Convex logo */}
+          {/* Logos */}
           <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
-            <img src="/convex-black.svg" alt="Convex Logo" className="h-4" /> {/* Smaller height */}
+            <img src="/convex-black.svg" alt="Convex Logo" className="h-3 sm:h-4" />
           </a>
-          {/* Use static path for Chef logo */}
           <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
-            <img src="/chef.svg" alt="Chef Logo" className="h-9" /> {/* Smaller height */}
+            <img src="/chef.svg" alt="Chef Logo" className="h-7 sm:h-9" />
           </a>
         </div>
-        {/* "Cooked on..." text - now below logos, single line */}
-        <div className="text-l text-right text-[#6B7280] hidden md:block">
+        {/* "Cooked on..." text - Center text on mobile, right on md+ */}
+        <div className="text-xs sm:text-sm text-center md:text-right text-[#6B7280]">
           {" "}
-          {/* Hide on smaller screens if needed */}
+          {/* Removed hidden */}
           Cooked on
           <a
             href="https://convex.link/1millchefs"
@@ -77,18 +63,30 @@ function Header() {
             rel="noopener noreferrer"
             className="ml-1 hover:underline">
             Convex Chef
-          </a>{" "}
-          {/* Removed <br /> */}
-          with a splash of
+          </a>
+          <span className="mx-1">with a splash of</span> {/* Always show connector text */}
           <a
             href="https://openai.com/?utm_source=convexchef1millionprompts"
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-1 hover:underline">
+            className="hover:underline">
+            {" "}
+            {/* Removed ml-1 */}
             OpenAI
-          </a>{" "}
-          DALL·E 3
+          </a>
+          <span className="ml-1">DALL·E 3</span> {/* Always show DALL-E */}
         </div>
+      </div>
+
+      {/* Section 3: Counter (Below logos/text on mobile, middle on desktop) */}
+      {/* Make it visible and centered on mobile */}
+      <div className="flex-grow text-center px-2 md:px-4 order-2 md:order-2 py-2 md:py-0">
+        <span className="font-['Chakra_Petch'] font-bold text-lg sm:text-xl text-[#6B7280]">
+          {galleryCount.toLocaleString("en-US", {
+            minimumIntegerDigits: 7,
+            useGrouping: true,
+          })}
+        </span>
       </div>
     </header>
   );
@@ -341,29 +339,32 @@ function Dashboard() {
       {/* Call Header without props */}
       <Header />
 
-      {/* Main Dashboard Content */}
-      <main className="flex-1 px-6 py-8">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-6">Leaderboard</h1>
+      {/* Main Dashboard Content - Adjust padding */}
+      <main className="flex-1 px-4 sm:px-6 py-6 md:py-8">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6">
+          Leaderboard
+        </h1>
 
-        {/* Counter Section */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="border border-black px-6 py-3 rounded">
-            <span className="font-['Chakra_Petch'] font-semibold text-4xl text-black">
+        {/* Counter Section - Adjust layout and text size */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+          <div className="border border-black px-4 py-2 sm:px-6 sm:py-3 rounded">
+            <span className="font-['Chakra_Petch'] font-semibold text-2xl sm:text-4xl text-black">
               {galleryCount.toLocaleString("en-US")}
             </span>
           </div>
-          <span className="text-xl text-gray-600">Goal to 1 million</span>
+          <span className="text-lg sm:text-xl text-gray-600">Goal to 1 million</span>
         </div>
 
-        {/* Tabs Section - Reordered */}
+        {/* Tabs Section - Ensure wrapping and spacing */}
         <div className="flex flex-wrap gap-2 mb-6">
+          {/* TabButtons remain the same, flex-wrap handles responsiveness */}
           <TabButton
-            label="100 Most Liked Images"
+            label="100 Most Liked"
             isActive={activeTab === "mostLiked"}
             onClick={() => setActiveTab("mostLiked")}
           />
           <TabButton
-            label="100 Most Commented Images"
+            label="100 Most Commented"
             isActive={activeTab === "mostCommented"}
             onClick={() => setActiveTab("mostCommented")}
           />
@@ -384,8 +385,9 @@ function Dashboard() {
           />
         </div>
 
-        {/* Data Table Section */}
-        <div className="bg-white shadow rounded-lg p-4 min-h-[400px]">
+        {/* Data Table Section - Adjust padding */}
+        {/* The table container itself uses overflow-x-auto which is good */}
+        <div className="bg-white shadow rounded-lg p-2 sm:p-4 min-h-[400px]">
           <DataTable
             data={currentData}
             columns={currentColumns}
