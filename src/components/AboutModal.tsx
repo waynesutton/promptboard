@@ -104,6 +104,25 @@ function AboutModal() {
               </strong>{" "}
               social account after the 1 millionth prompt is submitted.
             </p>
+            <hr className="my-6 border-t border-[#E5E7EB]" />
+            <h2 className="text-2xl font-semibold mb-4 font-['Chakra_Petch'] text-[#0F0F0F]">
+              Contest Hosted by
+            </h2>
+
+            <p className="mb-6 text-[#374151] font-['Inter']">
+              <strong>
+                {" "}
+                <a
+                  href="https://convex.link/1millprompts"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  Convex
+                </a>{" "}
+              </strong>
+              is the open-source reactive database for app developers shipping modern, AI-powered
+              apps. Convex handles the real-time infra so you can focus on cooking up your building
+              your app.
+            </p>
 
             <hr className="my-6 border-t border-[#E5E7EB]" />
 

@@ -92,7 +92,7 @@ export function FooterContent({
       {!hideDashboardLink && ( // Conditionally render the dashboard link
         <div className="text-center text-sm text-gray-500 pt-4">
           <a href="/dashboard" className="hover:underline">
-            View Dashboard
+            Leaderboard
           </a>
         </div>
       )}

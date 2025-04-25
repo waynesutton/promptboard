@@ -23,5 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
+# Documentation / How-to files
+pwdhowto.md
+
 # Ignored for the template, you probably want to remove it:
 package-lock.json

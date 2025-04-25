@@ -317,14 +317,14 @@ export const addAuthorInfo = mutation({
 
 // --- Dashboard Queries ---
 
-// Get last 20 prompts
+// Get last 100 prompts
 export const getLast20Prompts = query({
   args: {},
   handler: async (ctx) => {
     const prompts = await ctx.db
       .query("gallery")
       .order("desc") // Order by _creationTime descending (default index)
-      .take(20);
+      .take(100); // Updated to 100
     // Map to include clicks
     return prompts.map((p) => ({
       ...p, // Spread existing fields
@@ -333,14 +333,14 @@ export const getLast20Prompts = query({
   },
 });
 
-// Get last 20 styles used
+// Get last 100 styles used
 export const getLast20Styles = query({
   args: {},
   handler: async (ctx) => {
     const styles = await ctx.db
       .query("gallery")
       .order("desc") // Order by _creationTime descending
-      .take(20);
+      .take(100); // Updated to 100
     // Map to include clicks
     return styles.map((s) => ({
       ...s,
@@ -365,7 +365,7 @@ export const getAllPrompts = query({
   },
 });
 
-// Get 20 most liked images
+// Get 100 most liked images
 export const getMostLikedImages = query({
   args: {},
   handler: async (ctx) => {
@@ -373,7 +373,7 @@ export const getMostLikedImages = query({
       .query("gallery")
       .withIndex("by_likes", (q) => q) // Use the likes index
       .order("desc") // Order by likes descending
-      .take(20);
+      .take(100); // Updated to 100
     // Map to include clicks
     return images.map((img) => ({
       ...img,
@@ -382,7 +382,7 @@ export const getMostLikedImages = query({
   },
 });
 
-// Get 20 most commented images
+// Get 100 most commented images
 export const getMostCommentedImages = query({
   args: {},
   handler: async (ctx) => {
@@ -391,7 +391,7 @@ export const getMostCommentedImages = query({
       // Make sure index name matches schema: by_comment_count
       .withIndex("by_comment_count", (q) => q)
       .order("desc") // Order by commentCount descending
-      .take(20);
+      .take(100); // Updated to 100
     // Map to include clicks
     return images.map((img) => ({
       ...img,

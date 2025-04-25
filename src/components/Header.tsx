@@ -78,6 +78,11 @@ function Header({ galleryCount, children }: HeaderProps) {
       {children && (
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full md:w-auto order-2">
           <AboutModal />
+          <Link
+            to="/dashboard" // Link to the Dashboard route
+            className="font-['Chakra_Petch'] font-light text-lg text-[#0F0F0F] hover:text-[#6B7280] focus:outline-none">
+            Leaderboard
+          </Link>
           {children}
         </div>
       )}

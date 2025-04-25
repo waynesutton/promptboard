@@ -12,7 +12,7 @@ interface DashboardGalleryDoc {
   storageId: Id<"_storage">;
   style: string;
   prompt: string;
-  aiResponse: string;
+  aiResponse?: string; // Make optional
   likes: number;
   commentCount?: number; // Make optional to match schema/queries
   clicks: number; // Add clicks field
@@ -167,7 +167,7 @@ function TabButton({ label, isActive, onClick }: TabButtonProps) {
 // Table Component Placeholder (Expand later)
 interface DataTableProps {
   data: DashboardGalleryDoc[] | undefined | null;
-  columns: string[];
+  columns: string[]; // Will now include 'Rank' potentially
   activeTab: string;
   onPromptClick: (imageId: Id<"gallery">) => void; // Add callback prop
 }
@@ -186,67 +186,94 @@ function DataTable({ data, columns, activeTab, onPromptClick }: DataTableProps) 
     return new Date(timestamp).toLocaleDateString();
   };
 
+  // Determine if Rank column should be shown based on activeTab
+  const showRankColumn = activeTab === "mostLiked" || activeTab === "mostCommented";
+
   return (
     <div className="mt-4 overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            {columns.map((col) => (
+            {/* Conditionally add Rank header */}
+            {showRankColumn && (
               <th
-                key={col}
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {col}
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16" // Added width
+              >
+                Rank
               </th>
-            ))}
+            )}
+            {columns
+              .filter((col) => col !== "Rank")
+              .map(
+                (
+                  col // Filter out 'Rank' if manually added below
+                ) => (
+                  <th
+                    key={col}
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {col}
+                  </th>
+                )
+              )}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {data.map((item) => (
-            <tr key={item._id}>
-              {columns.includes("Prompt") && (
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {/* Wrap prompt in a link, add onClick handler */}
-                  <a
-                    href={`/?imageId=${item._id}`}
-                    target="_blank" // Open in new tab
-                    rel="noopener noreferrer"
-                    className="hover:underline cursor-pointer" // Added cursor-pointer for clarity
-                    onClick={(e) => {
-                      // Call mutation *before* navigation
-                      onPromptClick(item._id);
-                      // Allow default link behavior to proceed unless handled differently (e.g., modal)
-                      // If we were opening a modal here instead:
-                      // e.preventDefault();
-                      // openModalFunction(item._id);
-                    }}>
-                    {item.prompt}
-                  </a>
-                </td>
-              )}
-              {columns.includes("Style") && (
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.style}</td>
-              )}
-              {columns.includes("Likes") && (
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.likes}</td>
-              )}
-              {columns.includes("Comments") && (
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.commentCount ?? 0} {/* Handle optional commentCount */}
-                </td>
-              )}
-              {columns.includes("Clicks") && ( // Add Clicks column display
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.clicks ?? 0} {/* Handle potential null/undefined */}
-                </td>
-              )}
-              {columns.includes("Date Submitted") && (
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {formatDate(item._creationTime)}
-                </td>
-              )}
-            </tr>
-          ))}
+          {data?.map(
+            (
+              item,
+              index // Use optional chaining and add index
+            ) => (
+              <tr key={item._id}>
+                {/* Conditionally add Rank data cell */}
+                {showRankColumn && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                    {index + 1}
+                  </td>
+                )}
+                {columns.includes("Prompt") && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <a
+                      href={`/?imageId=${item._id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline cursor-pointer"
+                      onClick={(e) => {
+                        onPromptClick(item._id);
+                      }}>
+                      {item.prompt}
+                    </a>
+                  </td>
+                )}
+                {columns.includes("Style") && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.style}
+                  </td>
+                )}
+                {columns.includes("Likes") && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.likes}
+                  </td>
+                )}
+                {columns.includes("Comments") && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.commentCount ?? 0}
+                  </td>
+                )}
+                {columns.includes("Clicks") && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.clicks ?? 0}
+                  </td>
+                )}
+                {columns.includes("Date Submitted") && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatDate(item._creationTime)}
+                  </td>
+                )}
+              </tr>
+            )
+          )}
         </tbody>
       </table>
     </div>
@@ -254,7 +281,8 @@ function DataTable({ data, columns, activeTab, onPromptClick }: DataTableProps) 
 }
 
 function Dashboard() {
-  const [activeTab, setActiveTab] = useState("last20Prompts");
+  // Start with 'mostLiked' as the default active tab
+  const [activeTab, setActiveTab] = useState("mostLiked");
   const incrementClicks = useMutation(api.gallery.incrementImageClicks);
 
   // Fetch data for the dashboard
@@ -282,26 +310,29 @@ function Dashboard() {
   let currentData: DashboardGalleryDoc[] | undefined | null = null;
   let currentColumns: string[] = [];
 
+  // Updated switch statement with new default and order
   switch (activeTab) {
-    case "last20Prompts":
-      currentData = last20Prompts;
-      currentColumns = ["Prompt", "Date Submitted"]; // Remove Clicks
-      break;
-    case "last20Styles":
-      currentData = last20Styles;
-      currentColumns = ["Style", "Date Submitted"]; // Clicks wasn't here
-      break;
-    case "allPrompts":
-      currentData = allPrompts;
-      currentColumns = ["Prompt", "Date Submitted"]; // Remove Clicks
-      break;
-    case "mostLiked":
+    case "mostLiked": // New default
       currentData = mostLiked;
-      currentColumns = ["Prompt", "Likes", "Date Submitted"]; // Remove Clicks
+      // Add 'Rank' to columns
+      currentColumns = ["Rank", "Prompt", "Likes", "Date Submitted"];
       break;
     case "mostCommented":
       currentData = mostCommented;
-      currentColumns = ["Prompt", "Comments", "Date Submitted"]; // Remove Clicks
+      // Add 'Rank' to columns
+      currentColumns = ["Rank", "Prompt", "Comments", "Date Submitted"];
+      break;
+    case "last20Prompts": // Note: Key still 'last20Prompts' internally
+      currentData = last20Prompts;
+      currentColumns = ["Prompt", "Date Submitted"];
+      break;
+    case "last20Styles": // Note: Key still 'last20Styles' internally
+      currentData = last20Styles;
+      currentColumns = ["Style", "Date Submitted"];
+      break;
+    case "allPrompts":
+      currentData = allPrompts;
+      currentColumns = ["Prompt", "Date Submitted"];
       break;
   }
 
@@ -312,7 +343,7 @@ function Dashboard() {
 
       {/* Main Dashboard Content */}
       <main className="flex-1 px-6 py-8">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-6">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-gray-800 mb-6">Leaderboard</h1>
 
         {/* Counter Section */}
         <div className="flex items-center gap-4 mb-8">
@@ -324,15 +355,25 @@ function Dashboard() {
           <span className="text-xl text-gray-600">Goal to 1 million</span>
         </div>
 
-        {/* Tabs Section */}
+        {/* Tabs Section - Reordered */}
         <div className="flex flex-wrap gap-2 mb-6">
           <TabButton
-            label="Last 20 Prompts"
+            label="100 Most Liked Images"
+            isActive={activeTab === "mostLiked"}
+            onClick={() => setActiveTab("mostLiked")}
+          />
+          <TabButton
+            label="100 Most Commented Images"
+            isActive={activeTab === "mostCommented"}
+            onClick={() => setActiveTab("mostCommented")}
+          />
+          <TabButton
+            label="Last 100 Prompts"
             isActive={activeTab === "last20Prompts"}
             onClick={() => setActiveTab("last20Prompts")}
           />
           <TabButton
-            label="Last 20 Styles"
+            label="Last 100 Styles"
             isActive={activeTab === "last20Styles"}
             onClick={() => setActiveTab("last20Styles")}
           />
@@ -340,16 +381,6 @@ function Dashboard() {
             label="All Prompts"
             isActive={activeTab === "allPrompts"}
             onClick={() => setActiveTab("allPrompts")}
-          />
-          <TabButton
-            label="20 Most Liked Images"
-            isActive={activeTab === "mostLiked"}
-            onClick={() => setActiveTab("mostLiked")}
-          />
-          <TabButton
-            label="20 Most Commented Images"
-            isActive={activeTab === "mostCommented"}
-            onClick={() => setActiveTab("mostCommented")}
           />
         </div>
 
