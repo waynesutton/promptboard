@@ -65,7 +65,7 @@ function Header({ galleryCount, children }: HeaderProps) {
       {/* Title & About Link Group (Order 1 on all screens) */}
       <div className="flex items-center gap-4 order-1">
         <Link to="/">
-          <h1 className="font-['Chakra_Petch'] font-light text-xl sm:text-2xl text-[#0F0F0F] whitespace-nowrap hover:text-gray-700 transition-colors">
+          <h1 className="font-['Chakra_Petch'] font-light text-xl sm:text-xl text-[#0F0F0F] whitespace-nowrap hover:text-gray-700 transition-colors">
             1 Million Prompts Contest
           </h1>
         </Link>
