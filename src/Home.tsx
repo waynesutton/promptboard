@@ -124,6 +124,7 @@ function Home() {
   const [loadingImageIndex, setLoadingImageIndex] = useState(0);
   const [authorNameInput, setAuthorNameInput] = useState("");
   const [authorSocialLinkInput, setAuthorSocialLinkInput] = useState("");
+  const [authorEmailInput, setAuthorEmailInput] = useState("");
 
   // Queries
   const {
@@ -248,6 +249,7 @@ function Home() {
         setModalImageId(result.galleryId);
         setAuthorNameInput("");
         setAuthorSocialLinkInput("");
+        setAuthorEmailInput("");
       }
     } catch (error) {
       console.error("Error generating image:", error);
@@ -308,6 +310,7 @@ function Home() {
     setModalImageId(imageDoc._id);
     setAuthorNameInput("");
     setAuthorSocialLinkInput("");
+    setAuthorEmailInput("");
   };
 
   const handleCloseModal = () => {
@@ -316,6 +319,7 @@ function Home() {
     setShowCommentModal(false);
     setAuthorNameInput("");
     setAuthorSocialLinkInput("");
+    setAuthorEmailInput("");
   };
 
   const handleSaveAuthorInfo = async () => {
@@ -325,6 +329,7 @@ function Home() {
         galleryId: modalImageId,
         authorName: authorNameInput,
         authorSocialLink: authorSocialLinkInput || undefined,
+        authorEmail: authorEmailInput || undefined,
       });
     } catch (error) {
       console.error("Error saving author info:", error);
@@ -558,6 +563,16 @@ function Home() {
                       onChange={(e) => setAuthorSocialLinkInput(e.target.value)}
                       className="w-full mb-2 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                     />
+                    <input
+                      type="email"
+                      placeholder="Email Address (Optional)"
+                      value={authorEmailInput}
+                      onChange={(e) => setAuthorEmailInput(e.target.value)}
+                      className="w-full mb-1 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <p className="text-xs text-gray-500 mb-2">
+                      Opt in for updates and to be notified if you're a winner.
+                    </p>
                     <button
                       onClick={handleSaveAuthorInfo}
                       disabled={!authorNameInput}

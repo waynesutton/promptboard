@@ -18,6 +18,7 @@ export default defineSchema({
     clicks: v.optional(v.number()),
     authorName: v.optional(v.string()),
     authorSocialLink: v.optional(v.string()),
+    authorEmail: v.optional(v.string()),
   })
     .index("by_creationTime_desc", ["prompt"])
     .index("by_likes", ["likes"])

@@ -295,6 +295,7 @@ export const addAuthorInfo = mutation({
     galleryId: v.id("gallery"),
     authorName: v.string(),
     authorSocialLink: v.optional(v.string()), // Social link is optional
+    authorEmail: v.optional(v.string()), // Add optional email argument
   },
   handler: async (ctx, args) => {
     // Ensure gallery item exists
@@ -310,6 +311,7 @@ export const addAuthorInfo = mutation({
       authorName: args.authorName,
       // Ensure undefined is stored if the link is empty/null, not an empty string if desired
       authorSocialLink: args.authorSocialLink || undefined,
+      authorEmail: args.authorEmail || undefined, // Save email or undefined
     });
     // Optionally return something, like success: true
   },
