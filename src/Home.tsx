@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent, CSSProperties, LegacyRef } from "react";
 import { useAction, useMutation, useQuery, usePaginatedQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
@@ -7,6 +7,9 @@ import { useSearchParams } from "react-router-dom";
 import FooterContent from "./components/FooterContent";
 import Header from "./components/Header";
 import { Dialog, Transition } from "@headlessui/react";
+import { FixedSizeGrid as Grid, GridChildComponentProps } from "react-window";
+import InfiniteLoader from "react-window-infinite-loader";
+import AutoSizer from "react-virtualized-auto-sizer";
 
 // Remove logo IDs
 // const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
@@ -77,31 +80,46 @@ interface GalleryDoc {
   commentCount?: number;
   authorName?: string;
   authorSocialLink?: string;
+  authorEmail?: string;
 }
 
 // New component to render a single gallery image start
 interface GalleryImageItemProps {
-  imageDoc: GalleryDoc;
-  onClick: () => void;
+  imageDoc: GalleryDoc | null;
+  style: CSSProperties;
+  onClick: (imageDoc: GalleryDoc) => void;
 }
 
-function GalleryImageItem({ imageDoc, onClick }: GalleryImageItemProps) {
-  const imageResult = useQuery(api.gallery.getImage, { imageId: imageDoc.storageId });
+function GalleryImageItem({ imageDoc, style, onClick }: GalleryImageItemProps) {
+  const imageResult = useQuery(
+    api.gallery.getImage,
+    imageDoc ? { imageId: imageDoc.storageId } : "skip"
+  );
+
+  if (!imageDoc) {
+    return (
+      <div style={style} className="p-0.5">
+        <div className="w-full h-full bg-gray-100 animate-pulse"></div>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className="aspect-square cursor-pointer bg-gray-200 border border-gray-300 overflow-hidden"
-      onClick={onClick}>
-      {imageResult?.imageUrl ? (
-        <img
-          src={imageResult.imageUrl}
-          alt={imageDoc.prompt || "Gallery image"}
-          className="w-full h-full object-cover pointer-events-none"
-          loading="lazy"
-        />
-      ) : (
-        <div className="w-full h-full bg-gray-100"></div>
-      )}
+    <div style={style} className="p-0.5">
+      <div
+        className="aspect-square cursor-pointer bg-gray-200 border border-gray-300 overflow-hidden w-full h-full"
+        onClick={() => onClick(imageDoc)}>
+        {imageResult?.imageUrl ? (
+          <img
+            src={imageResult.imageUrl}
+            alt={imageDoc.prompt || "Gallery image"}
+            className="w-full h-full object-cover pointer-events-none"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-100 animate-pulse"></div>
+        )}
+      </div>
     </div>
   );
 }
@@ -125,23 +143,16 @@ function Home() {
   const [authorNameInput, setAuthorNameInput] = useState("");
   const [authorSocialLinkInput, setAuthorSocialLinkInput] = useState("");
   const [authorEmailInput, setAuthorEmailInput] = useState("");
+  const [columnCount, setColumnCount] = useState(10);
+  const infiniteLoaderRef = useRef<InfiniteLoader>(null);
 
   // Queries
   const {
     results: galleryItems,
     status: galleryStatus,
     loadMore,
-  } = usePaginatedQuery(
-    api.gallery.listGallery,
-    { paginationOpts: {} },
-    { initialNumItems: 1000 } // Load 1000 initially (10 columns * 100 rows)
-  );
+  } = usePaginatedQuery(api.gallery.listGallery, {}, { initialNumItems: 200 });
   const galleryCount = useQuery(api.gallery.getGalleryCount) || 0;
-  // Remove logo queries
-  // const getChefLogo = useQuery(api.gallery.getImage, { imageId: CHEF_LOGO_ID as Id<"_storage"> });
-  // const getConvexLogo = useQuery(api.gallery.getImage, {
-  //   imageId: CONVEX_LOGO_ID as Id<"_storage">,
-  // });
   const getComments = useQuery(
     api.gallery.getComments,
     modalImageId ? { galleryId: modalImageId } : "skip"
@@ -150,6 +161,7 @@ function Home() {
 
   const isLimitReached = galleryCount >= MAX_GALLERY_COUNT;
   const isLoadingMore = galleryStatus === "LoadingMore";
+  const canLoadMore = galleryStatus === "CanLoadMore";
 
   // Actions & Mutations
   const generateImage = useAction(api.gallery.processImage);
@@ -160,11 +172,7 @@ function Home() {
   // Effect to open modal based on URL query parameter on initial load
   useEffect(() => {
     const imageIdFromUrl = searchParams.get("imageId");
-    // Basic check: Ensure it's a non-empty string.
-    // Convex IDs have a specific format, but a simple string check is likely sufficient here.
     if (imageIdFromUrl && typeof imageIdFromUrl === "string") {
-      // Attempt to cast to Id<"gallery"> - This doesn't validate existence,
-      // but sets the state to trigger modal logic.
       setModalImageId(imageIdFromUrl as Id<"gallery">);
     }
     // This effect should only run once on mount
@@ -174,7 +182,7 @@ function Home() {
   // Query to get the URL for the currently cycling loading image
   const loadingStorageId =
     isGenerating && galleryItems.length > 0
-      ? galleryItems[loadingImageIndex % galleryItems.length]?.storageId // Use modulo and optional chaining
+      ? galleryItems[loadingImageIndex % galleryItems.length]?.storageId
       : null;
   const loadingImageResult = useQuery(
     api.gallery.getImage,
@@ -361,6 +369,53 @@ function Home() {
     }
   }, [modalImageId, modalImageResult?.imageUrl, modalImageData]);
 
+  // Calculate total number of items (or a placeholder if count is loading)
+  const totalItems = galleryCount ?? galleryItems.length + (canLoadMore ? 1 : 0);
+
+  // Function required by InfiniteLoader to check if an item is loaded
+  const isItemLoaded = (index: number) => !canLoadMore || index < galleryItems.length;
+
+  // Function required by InfiniteLoader to load more items
+  const loadMoreItems = isLoadingMore
+    ? () => Promise.resolve() // Do nothing if already loading
+    : () => {
+        console.log("Attempting to load more items...");
+        loadMore(100); // Load next 100 items (adjust batch size as needed)
+        return Promise.resolve(); // Return a promise for InfiniteLoader
+      };
+
+  // --- Recalculate columns based on window width ---
+  useEffect(() => {
+    const calculateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1280) return 10; // xl
+      if (width >= 1024) return 8; // lg
+      if (width >= 768) return 6; // md
+      if (width >= 640) return 4; // sm
+      return 2; // xs
+    };
+
+    const handleResize = () => {
+      setColumnCount(calculateColumns());
+      // Reset cached item sizes in InfiniteLoader if columns change
+      if (infiniteLoaderRef.current) {
+        infiniteLoaderRef.current.resetloadMoreItemsCache();
+      }
+    };
+
+    handleResize(); // Initial calculation
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  // --- End column calculation ---
+
+  // Effect to reset infinite loader cache if items change drastically (e.g., new generation)
+  useEffect(() => {
+    if (infiniteLoaderRef.current) {
+      infiniteLoaderRef.current.resetloadMoreItemsCache();
+    }
+  }, [galleryItems.length]); // Reset when the number of loaded items changes
+
   return (
     <div className="min-h-screen bg-[#F3F4F6] flex flex-col">
       {/* Use the reusable Header component */}
@@ -376,7 +431,7 @@ function Home() {
             placeholder={
               isLimitReached
                 ? "1 million prompts reached!"
-                : "Enter your prompt to generate an image."
+                : "Enter your prompt, select a style, and click 'Add Yours' to generate an image."
             }
             // Responsive width: full on small, adjusts medium+, max large
             className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none bg-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
@@ -430,48 +485,83 @@ function Home() {
         </form>
       </Header>
 
-      <main className="flex-1 px-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-1 mt-8">
-          {galleryItems.map((imgDoc) => (
-            <GalleryImageItem
-              key={imgDoc._id.toString()}
-              imageDoc={imgDoc}
-              onClick={() => handleOpenModal(imgDoc)}
-            />
-          ))}
-        </div>
+      <main className="flex-1 px-6 flex flex-col">
+        <div className="flex-grow mt-8">
+          <AutoSizer>
+            {({ height, width }) => {
+              if (width === 0 || height === 0) {
+                return null;
+              }
+              const calculatedColumnCount = columnCount;
+              const columnWidth = Math.floor(width / calculatedColumnCount);
+              const rowHeight = columnWidth;
+              const rowCount = Math.ceil(totalItems / calculatedColumnCount);
 
-        {galleryStatus === "CanLoadMore" && !isLimitReached && (
-          <div className="text-center my-8">
-            <button
-              onClick={() => loadMore(1000)}
-              disabled={isLoadingMore}
-              className="px-6 py-2 bg-[#EB2E2A] text-white rounded-lg hover:bg-[#cf2925] disabled:opacity-50">
-              {isLoadingMore ? "Loading..." : "Load More"}
-            </button>
-          </div>
-        )}
-        {galleryStatus === "Exhausted" && !isLimitReached && (
-          <p className="text-center text-gray-500 my-8">No more images to load.</p>
-        )}
+              return (
+                <InfiniteLoader
+                  ref={infiniteLoaderRef}
+                  isItemLoaded={isItemLoaded}
+                  itemCount={totalItems}
+                  loadMoreItems={loadMoreItems}
+                  threshold={5}>
+                  {({
+                    onItemsRendered,
+                    ref,
+                  }: {
+                    onItemsRendered: (props: any) => any;
+                    ref: LegacyRef<Grid> | undefined;
+                  }) => (
+                    <Grid
+                      className="grid-container"
+                      columnCount={calculatedColumnCount}
+                      columnWidth={columnWidth}
+                      height={height}
+                      rowCount={rowCount}
+                      rowHeight={rowHeight}
+                      width={width}
+                      itemData={{
+                        items: galleryItems,
+                        columnCount: calculatedColumnCount,
+                        handleOpenModal,
+                      }}
+                      onItemsRendered={({
+                        visibleRowStartIndex,
+                        visibleRowStopIndex,
+                        overscanRowStartIndex,
+                        overscanRowStopIndex,
+                      }) => {
+                        onItemsRendered({
+                          overscanStartIndex: overscanRowStartIndex * calculatedColumnCount,
+                          overscanStopIndex: overscanRowStopIndex * calculatedColumnCount,
+                          visibleStartIndex: visibleRowStartIndex * calculatedColumnCount,
+                          visibleStopIndex: visibleRowStopIndex * calculatedColumnCount,
+                        });
+                      }}
+                      ref={ref}>
+                      {GridItem}
+                    </Grid>
+                  )}
+                </InfiniteLoader>
+              );
+            }}
+          </AutoSizer>
+        </div>
+        {isLoadingMore && <p className="text-center text-gray-500 my-4">Loading more...</p>}
       </main>
 
       {isGenerating && (
         <div className="fixed inset-0 bg-gray-100/85 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="text-center">
-            {/* Conditional Image Display */}
             {loadingImageResult?.imageUrl ? (
               <img
                 src={loadingImageResult.imageUrl}
                 alt="Loading..."
-                className="w-48 h-48 sm:w-64 sm:h-64 object-cover mx-auto mb-4 rounded-lg shadow-xl animate-pulse" // Adjusted styling
+                className="w-48 h-48 sm:w-64 sm:h-64 object-cover mx-auto mb-4 rounded-lg shadow-xl animate-pulse"
               />
             ) : (
-              // Fallback spinner if no image or gallery is empty
               <svg
                 className="w-16 h-16 text-gray-700 animate-spin mx-auto mb-4"
                 viewBox="0 0 10870 10946">
-                {/* SVG paths remain the same */}
                 <path
                   d="M6868.76 8627.42C8487.29 8450.74 10013.2 7603.18 10853.3 6188.51C10455.5 9687.49 6562.35 11899.1 3384.6 10541.2C3091.79 10416.4 2839.74 10208.9 2666.77 9942.01C1952.64 8839.93 1717.89 7437.62 2055.19 6165.03C3018.89 7799.62 4978.42 8801.63 6868.76 8627.42Z"
                   fill="#F3B01C"
@@ -520,7 +610,6 @@ function Home() {
                 Loading image...
               </div>
             )}
-            {/* prompt, style and author for modal starts here */}
             {modalImageData && (
               <div className="mb-4 text-sm">
                 <p>
@@ -583,8 +672,6 @@ function Home() {
                 )}
               </div>
             )}
-            {/* prompt, style and author for modal ends here */}
-            {/* comment for modal starts here */}
             <div className="flex items-center justify-center gap-6 mb-4">
               <button
                 onClick={handleLike}
@@ -598,7 +685,6 @@ function Home() {
                 </svg>
                 {modalImageData?.likes ?? 0}
               </button>
-              {/* comment for modal starts here */}
               <button
                 onClick={() => setShowCommentModal(true)}
                 className="flex items-center gap-1 text-gray-700 hover:text-blue-600">
@@ -612,7 +698,6 @@ function Home() {
                 </svg>
                 {modalImageData?.commentCount ?? (getComments ? getComments.length : 0)}
               </button>
-              {/* comment for modal end here */}
               <button
                 onClick={handleCopy}
                 className="flex items-center gap-1 text-gray-700 hover:text-green-600">
@@ -626,7 +711,6 @@ function Home() {
                 Download
               </button>
             </div>
-            {/* Call FooterContent with props to hide dashboard link and show report link, passing image data */}
             <FooterContent
               hideDashboardLink={true}
               showReportLink={true}
@@ -712,11 +796,28 @@ function Home() {
       )}
 
       <footer className="mt-auto">
-        {/* Call FooterContent without props to show dashboard link */}
         <FooterContent />
       </footer>
     </div>
   );
 }
+
+const GridItem = ({
+  columnIndex,
+  rowIndex,
+  style,
+  data,
+}: GridChildComponentProps<{
+  items: GalleryDoc[];
+  columnCount: number;
+  handleOpenModal: (imageDoc: GalleryDoc) => void;
+}>) => {
+  const { items, columnCount, handleOpenModal } = data;
+  const index = rowIndex * columnCount + columnIndex;
+
+  const imageDoc = items[index] ?? null;
+
+  return <GalleryImageItem imageDoc={imageDoc} style={style} onClick={handleOpenModal} />;
+};
 
 export default Home;

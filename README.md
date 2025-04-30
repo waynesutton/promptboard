@@ -2,7 +2,7 @@
 
 ## About
 
-**1 Million Prompts** is a community-powered AI image generator contest built with Convex, Convex Chef, and OpenAI's DALL·E 3. Every image contributes to a global goal: reaching 1,000,000 AI-generated prompts.  
+**1 Million Prompts** is a community-powered AI image generator contest built with Convex, Convex Chef, and OpenAI. Every image contributes to a global goal: reaching 1,000,000 AI-generated prompts.  
 Track progress in real-time, explore a living prompt gallery, and generate images in your favorite styles—from Pixar to pop art to thermal silhouettes.
 
 This isn't just another image app. It's a vibe-coded global challenge.
@@ -30,7 +30,7 @@ Winners will also receive Convex swag and startup credits. Let the prompt cookin
 - **AI Image Generation**:
 
   - Input custom text prompts to describe the desired image.
-  - Utilize openai's DALL·E 3 model for high-quality image creation.
+  - Utilize model for high-quality image creation.
   - Select from a diverse range of predefined artistic styles (see below).
   - Monitor generation progress with a real-time loading indicator featuring cycling images and cooking-themed status words.
 

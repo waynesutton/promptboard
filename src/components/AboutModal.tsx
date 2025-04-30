@@ -50,8 +50,8 @@ function AboutModal() {
             </h2>
             <p className="mb-4 text-[#374151] font-['Inter']">
               <strong>1 Million Prompts</strong> is a community-powered AI image generator built
-              with Convex, Convex Chef, and OpenAI's DALL·E 3. Every image contributes to a global
-              goal: reaching 1,000,000 AI-generated prompts.
+              with Convex, Convex Chef, and OpenAI. Every image contributes to a global goal:
+              reaching 1,000,000 AI-generated prompts.
             </p>
             <p className="mb-4 text-[#374151] font-['Inter']">
               Track progress in real-time, explore a living prompt gallery, and generate images in
@@ -78,7 +78,7 @@ function AboutModal() {
               <li>🔥 Prize for most creative prompt + image</li>
               <li>❤️ Prize for most liked prompt</li>
               <li>
-                🏆 $1000 + Bonus for submitting the <strong>1 millionth prompt</strong>
+                🏆 $$$$$ + Bonus for submitting the <strong>1 millionth prompt</strong>
               </li>
             </ul>
 
@@ -105,6 +105,21 @@ function AboutModal() {
               social account after the 1 millionth prompt is submitted.
             </p>
             <hr className="my-6 border-t border-[#E5E7EB]" />
+
+            <h2 className="text-2xl font-semibold mb-4 font-['Chakra_Petch'] text-[#0F0F0F]">
+              Meet the Judges
+            </h2>
+            <h3 className="text-lg font-semibold mb-2 font-['Chakra_Petch'] text-[#0F0F0F]">TBA</h3>
+            <ol className="list-decimal list-inside mb-4 text-[#374151] font-['Inter'] space-y-1">
+              <li>Judge 1</li>
+              <li>Judge 2</li>
+              <li>Judge 3</li>
+              <li>Judge 4</li>
+              <li>Judge 5</li>
+            </ol>
+
+            <hr className="my-6 border-t border-[#E5E7EB]" />
+
             <h2 className="text-2xl font-semibold mb-4 font-['Chakra_Petch'] text-[#0F0F0F]">
               Contest Hosted by
             </h2>

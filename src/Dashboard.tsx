@@ -42,14 +42,12 @@ function Header() {
 
       {/* Section 2: Logos and Text (Below title on mobile, last on desktop) */}
       {/* Ensure it takes full width on mobile for centering, auto on md+ */}
-      <div className="flex-none flex flex-col items-center gap-1 w-full md:w-auto order-3 md:order-3">
+      {/* Align items to end (right) on md+ screens */}
+      <div className="flex-none flex flex-col items-center md:items-end gap-1 w-full md:w-auto order-3 md:order-3">
         <div className="flex items-center justify-center gap-2">
           {/* Logos */}
           <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
             <img src="/convex-black.svg" alt="Convex Logo" className="h-3 sm:h-4" />
-          </a>
-          <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
-            <img src="/chef.svg" alt="Chef Logo" className="h-7 sm:h-9" />
           </a>
         </div>
         {/* "Cooked on..." text - Center text on mobile, right on md+ */}
@@ -74,7 +72,7 @@ function Header() {
             {/* Removed ml-1 */}
             OpenAI
           </a>
-          <span className="ml-1">DALL·E 3</span> {/* Always show DALL-E */}
+          {/*  <span className="ml-1">DALL·E 3</span> Always show DALL-E */}
         </div>
       </div>
 

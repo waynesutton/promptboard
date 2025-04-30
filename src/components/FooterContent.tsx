@@ -56,17 +56,17 @@ export function FooterContent({
           className="ml-1 hover:underline">
           OpenAI
         </a>{" "}
-        DALL·E 3
       </div>
       <div className="flex items-center justify-center gap-4">
         {/* Use static path for Convex logo */}
+        Powered by{" "}
         <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
           <img src="/convex-black.svg" alt="Convex Logo" className="h-3" />
         </a>
-        {/* Use static path for Chef logo */}
+        {/* Use static path for Chef logo 
         <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
           <img src="/chef.svg" alt="Chef Logo" className="h-6" />
-        </a>
+        </a>*/}
       </div>
 
       {showReportLink &&
