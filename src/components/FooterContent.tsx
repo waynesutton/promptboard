@@ -57,7 +57,7 @@ export function FooterContent({
           OpenAI
         </a>{" "}
       </div>
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center text-[#6B7280] justify-center gap-2">
         {/* Use static path for Convex logo */}
         Powered by{" "}
         <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">

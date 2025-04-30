@@ -16,6 +16,8 @@ interface DashboardGalleryDoc {
   likes: number;
   commentCount?: number; // Make optional to match schema/queries
   clicks: number; // Add clicks field
+  authorName?: string; // Add author name
+  authorSocialLink?: string; // Add author social link
 }
 
 // --- Modified Header Component ---
@@ -229,13 +231,15 @@ function DataTable({ data, columns, activeTab, onPromptClick }: DataTableProps) 
                   </td>
                 )}
                 {columns.includes("Prompt") && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">
                     <a
                       href={`/?imageId=${item._id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hover:underline cursor-pointer"
+                      title={item.prompt} // Add title for full prompt on hover
                       onClick={(e) => {
+                        // e.preventDefault(); // Prevent default if handling navigation differently
                         onPromptClick(item._id);
                       }}>
                       {item.prompt}
@@ -245,6 +249,28 @@ function DataTable({ data, columns, activeTab, onPromptClick }: DataTableProps) 
                 {columns.includes("Style") && (
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {item.style}
+                  </td>
+                )}
+                {/* Add Author Name column */}
+                {columns.includes("Author") && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.authorName || "N/A"}
+                  </td>
+                )}
+                {/* Add Social Link column */}
+                {columns.includes("Social Link") && (
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.authorSocialLink ? (
+                      <a
+                        href={item.authorSocialLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline">
+                        Profile
+                      </a>
+                    ) : (
+                      "N/A"
+                    )}
                   </td>
                 )}
                 {columns.includes("Likes") && (
@@ -310,25 +336,28 @@ function Dashboard() {
   switch (activeTab) {
     case "mostLiked": // New default
       currentData = mostLiked;
-      // Add 'Rank' to columns
-      currentColumns = ["Rank", "Prompt", "Likes", "Date Submitted"];
+      // Add 'Rank', 'Author', 'Social Link' to columns
+      currentColumns = ["Rank", "Prompt", "Author", "Social Link", "Likes", "Date Submitted"];
       break;
     case "mostCommented":
       currentData = mostCommented;
-      // Add 'Rank' to columns
+      // Add 'Rank' to columns, DO NOT ADD Author/Link here
       currentColumns = ["Rank", "Prompt", "Comments", "Date Submitted"];
       break;
     case "last20Prompts": // Note: Key still 'last20Prompts' internally
       currentData = last20Prompts;
-      currentColumns = ["Prompt", "Date Submitted"];
+      // Add 'Author', 'Social Link'
+      currentColumns = ["Prompt", "Author", "Social Link", "Date Submitted"];
       break;
     case "last20Styles": // Note: Key still 'last20Styles' internally
       currentData = last20Styles;
-      currentColumns = ["Style", "Date Submitted"];
+      // Add 'Author', 'Social Link'
+      currentColumns = ["Style", "Author", "Social Link", "Date Submitted"];
       break;
     case "allPrompts":
       currentData = allPrompts;
-      currentColumns = ["Prompt", "Date Submitted"];
+      // Add 'Author', 'Social Link'
+      currentColumns = ["Prompt", "Author", "Social Link", "Date Submitted"];
       break;
   }
 

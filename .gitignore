@@ -28,3 +28,6 @@ pwdhowto.md
 
 # Ignored for the template, you probably want to remove it:
 package-lock.json
+
+# Marketing plan
+marketing.md
