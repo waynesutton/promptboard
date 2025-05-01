@@ -66,7 +66,7 @@ function Header({ galleryCount, children }: HeaderProps) {
       <div className="flex items-center gap-4 order-1">
         <Link to="/">
           <h1 className="font-['Chakra_Petch'] font-light text-xl sm:text-xl text-[#0F0F0F] whitespace-nowrap hover:text-gray-700 transition-colors">
-            1 Million Prompts Contest
+            1 Million Prompts
           </h1>
         </Link>
       </div>
@@ -95,7 +95,7 @@ function Header({ galleryCount, children }: HeaderProps) {
           onClick={handleSearchToggle}
           className="text-gray-600 hover:text-gray-900 focus:outline-none"
           aria-label={isSearchOpen ? "Close search" : "Open search"}>
-          {isSearchOpen ? <X size={24} /> : <Search size={24} />}
+          {isSearchOpen ? <X size={18} /> : <Search size={18} />}
         </button>
         {/* Search Dropdown (Form only, no results list) */}
         {isSearchOpen && (

@@ -431,10 +431,10 @@ function Home() {
             placeholder={
               isLimitReached
                 ? "1 million prompts reached!"
-                : "Enter your prompt, select a style, and click 'Add Yours' to generate an image."
+                : "Enter your prompt, select a style, and click Add Yours"
             }
             // Responsive width: full on small, adjusts medium+, max large
-            className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none bg-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none bg-white rounded-lg shadow-sm disabled:opacity-50 placeholder:text-gray-700 placeholder:text-xs disabled:cursor-not-allowed"
             disabled={isLimitReached || isGenerating}
           />
           {/* Inner group for select + button remains conceptually the same */}

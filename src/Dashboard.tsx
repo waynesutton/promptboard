@@ -37,8 +37,8 @@ function Header() {
     <header className="flex flex-col md:flex-row items-center justify-between gap-3 px-4 py-3 md:px-6 border-none">
       {/* Section 1: Title (Always visible, first on mobile, first on desktop) */}
       <div className="flex-none text-center md:text-left w-full md:w-auto order-1">
-        <h1 className="font-['Chakra_Petch'] font-light text-xl sm:text-2xl md:text-3xl text-[#0F0F0F] whitespace-nowrap">
-          <a href="/">1 million prompts</a>
+        <h1 className="font-['Chakra_Petch'] font-light text-xl sm:text-xl md:text-xl text-[#0F0F0F] whitespace-nowrap">
+          <a href="/">1 Million Prompts</a>
         </h1>
       </div>
 
