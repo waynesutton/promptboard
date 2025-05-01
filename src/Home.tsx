@@ -486,7 +486,8 @@ function Home() {
       </Header>
 
       <main className="flex-1 px-6 flex flex-col">
-        <div className="flex-grow mt-8">
+        <div className="flex-grow mt-2
+        ">
           <AutoSizer>
             {({ height, width }) => {
               if (width === 0 || height === 0) {
