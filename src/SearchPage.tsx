@@ -190,6 +190,23 @@ function SearchPage() {
       <main className="flex-1 px-6 py-8 max-w-4xl mx-auto w-full">
         <h2 className="text-2xl font-semibold mb-6 text-center">Search Gallery</h2>
 
+        {/* powered by logos start */}
+        <div className="flex items-center mt-5 mb-5 text-[#6B7280] text-sm  justify-center gap-2">
+          {/* Use static path for Convex logo */}
+          Powered by{" "}
+          <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
+            <img src="/convex-black.svg" alt="Convex Logo" className="h-3" />
+          </a>{" "}
+          and {/* Use static path for open ai logo */}
+          <a
+            href="https://openai.com/?utm_source=convexchef1millionprompts"
+            target="_blank"
+            rel="noopener noreferrer">
+            <img src="/openai.svg" alt="OpenAI Logo" className="h-6" />
+          </a>
+        </div>
+        {/* powered by logos end */}
+
         {/* Search Bar (Form handler triggers URL change, onChange updates URL too) */}
         <form onSubmit={handleSearchSubmit} className="flex gap-2 mb-8">
           <input
@@ -202,7 +219,7 @@ function SearchPage() {
               setSearchParams({ q: newValue }, { replace: true }); // Use replace to avoid history clutter
             }}
             placeholder="Search prompts, comments, authors..."
-            className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#2a2a2a]"
           />
           <button
             type="submit"

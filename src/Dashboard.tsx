@@ -268,7 +268,22 @@ function Dashboard() {
         <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6">
           Leaderboard
         </h1>
-
+        {/* powered by logos start */}
+        <div className="flex items-center text-[#6B7280] text-sm  justify-center gap-2">
+          {/* Use static path for Convex logo */}
+          Powered by{" "}
+          <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
+            <img src="/convex-black.svg" alt="Convex Logo" className="h-3" />
+          </a>{" "}
+          and {/* Use static path for open ai logo */}
+          <a
+            href="https://openai.com/?utm_source=convexchef1millionprompts"
+            target="_blank"
+            rel="noopener noreferrer">
+            <img src="/openai.svg" alt="OpenAI Logo" className="h-6" />
+          </a>
+        </div>
+        {/* powered by logos end */}
         {/* Counter Section */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
           <div className="border border-black px-4 py-2 sm:px-6 sm:py-3 rounded">

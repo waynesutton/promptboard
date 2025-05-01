@@ -62,6 +62,13 @@ export function FooterContent({
         Powered by{" "}
         <a href="https://convex.link/1millprompts" target="_blank" rel="noopener noreferrer">
           <img src="/convex-black.svg" alt="Convex Logo" className="h-3" />
+        </a>{" "}
+        and {/* Use static path for open ai logo */}
+        <a
+          href="https://openai.com/?utm_source=convexchef1millionprompts"
+          target="_blank"
+          rel="noopener noreferrer">
+          <img src="/openai.svg" alt="OpenAI Logo" className="h-6" />
         </a>
         {/* Use static path for Chef logo 
         <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">

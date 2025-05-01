@@ -1,4 +1,13 @@
-import { useState, useEffect, useRef, FormEvent, CSSProperties, LegacyRef } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  FormEvent,
+  CSSProperties,
+  LegacyRef,
+  RefObject,
+  Ref,
+} from "react";
 import { useAction, useMutation, useQuery, usePaginatedQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
@@ -434,7 +443,7 @@ function Home() {
                 : "Enter your prompt, select a style, and click Add Yours"
             }
             // Responsive width: full on small, adjusts medium+, max large
-            className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none bg-white rounded-lg shadow-sm disabled:opacity-50 placeholder:text-gray-700 placeholder:text-xs disabled:cursor-not-allowed"
+            className="w-full sm:w-64 md:w-72 lg:w-96 px-4 py-2 focus:outline-none focus:ring-1 focus:ring-[#2a2a2a] bg-white rounded-lg shadow-sm disabled:opacity-50 placeholder:text-gray-700 placeholder:text-xs disabled:cursor-not-allowed"
             disabled={isLimitReached || isGenerating}
           />
           {/* Inner group for select + button remains conceptually the same */}
@@ -486,8 +495,7 @@ function Home() {
       </Header>
 
       <main className="flex-1 px-6 flex flex-col">
-        <div className="flex-grow mt-2
-        ">
+        <div className="flex-grow mt-2">
           <AutoSizer>
             {({ height, width }) => {
               if (width === 0 || height === 0) {
@@ -643,7 +651,7 @@ function Home() {
                       placeholder="Author Name *"
                       value={authorNameInput}
                       onChange={(e) => setAuthorNameInput(e.target.value)}
-                      className="w-full mb-2 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full mb-2 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#2a2a2a] focus:border-[#2a2a2a]"
                       required
                     />
                     <input
@@ -651,14 +659,14 @@ function Home() {
                       placeholder="Social Profile Link (Optional)"
                       value={authorSocialLinkInput}
                       onChange={(e) => setAuthorSocialLinkInput(e.target.value)}
-                      className="w-full mb-2 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full mb-2 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#2a2a2a] focus:border-[#2a2a2a]"
                     />
                     <input
                       type="email"
                       placeholder="Email Address (Optional)"
                       value={authorEmailInput}
                       onChange={(e) => setAuthorEmailInput(e.target.value)}
-                      className="w-full mb-1 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full mb-1 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#2a2a2a] focus:border-[#2a2a2a]"
                     />
                     <p className="text-xs text-gray-500 mb-2">
                       Opt in for updates and to be notified if you're a winner.
