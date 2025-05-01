@@ -59,9 +59,11 @@ function Header({ galleryCount, children }: HeaderProps) {
 
   return (
     <header className="sticky top-0 bg-[#F3F4F6] z-10 px-4 sm:px-6 py-4">
-      <div className="flex justify-between items-center mb-4">
+      {/* Top Row: Stacks below md breakpoint */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4 md:gap-0">
         {/* Left: Title */}
-        <div className="flex-1 text-left">
+        {/* Takes full width on mobile/tablet, flex-1 on md+ */}
+        <div className="w-full md:flex-1 text-center md:text-left">
           <Link to="/">
             <h1 className="font-['Chakra_Petch'] font-light text-xl sm:text-xl text-[#0F0F0F] whitespace-nowrap hover:text-gray-700 transition-colors">
               1 Million Prompts
@@ -70,7 +72,8 @@ function Header({ galleryCount, children }: HeaderProps) {
         </div>
 
         {/* Center: Count */}
-        <div className="flex-1 text-center">
+        {/* Takes full width on mobile/tablet, flex-1 on md+ */}
+        <div className="w-full md:flex-1 text-center">
           <span className="font-['Chakra_Petch'] font-bold text-lg sm:text-xl text-[#6B7280]">
             {galleryCount.toLocaleString("en-US", {
               minimumIntegerDigits: 7,
@@ -80,9 +83,12 @@ function Header({ galleryCount, children }: HeaderProps) {
         </div>
 
         {/* Right: Search, About, Leaderboard */}
-        <div className="flex-1 flex justify-end items-center gap-4">
-          {/* Search Icon & Dropdown */}
+        {/* Stacks vertically centered on mobile/tablet, row centered on md+ */}
+        <div className="w-full md:flex-1 flex flex-col items-center md:flex-row md:justify-end gap-4">
+          {/* Search Icon & Dropdown - Always visible now */}
           <div className="relative" ref={dropdownRef}>
+            {" "}
+            {/* Removed hidden md:block */}
             <button
               onClick={handleSearchToggle}
               className="text-gray-600 hover:text-gray-900 focus:outline-none"
@@ -92,7 +98,7 @@ function Header({ galleryCount, children }: HeaderProps) {
             {isSearchOpen && (
               <form
                 onSubmit={handleSearchSubmit}
-                className="absolute top-full right-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg p-2 z-20">
+                className="absolute top-full mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg p-2 z-20 left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0">
                 <input
                   ref={searchInputRef}
                   type="search"
@@ -104,9 +110,10 @@ function Header({ galleryCount, children }: HeaderProps) {
               </form>
             )}
           </div>
+          {/* About and Leaderboard - Always visible */}
           <AboutModal />
           <Link
-            to="/dashboard" // Link to the Dashboard route
+            to="/dashboard"
             className="font-['Chakra_Petch'] font-light text-lg text-[#0F0F0F] hover:text-[#6B7280] focus:outline-none">
             Leaderboard
           </Link>
