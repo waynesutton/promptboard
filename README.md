@@ -95,7 +95,7 @@ Winners will also receive Convex swag and startup credits. Let the prompt cookin
 - Frontend: React + Vite
 - Backend: Convex
 - Styling: TailwindCSS
-- AI: openai DALL-E 3
+- AI: openai
 - Language: TypeScript
 
 ## Getting Started

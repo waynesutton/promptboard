@@ -117,13 +117,11 @@ export const processImage = action({
       const systemPrompt = SYSTEM_PROMPTS[args.style as keyof typeof SYSTEM_PROMPTS];
       const imageGenPrompt = `${systemPrompt} The image should include: ${args.prompt}`;
       const imageResponse = await openai.images.generate({
-        // model: "dall-e-3",
-        model: "gpt-image-1",
+        model: "dall-e-3",
+        //model: "gpt-image-1",
         prompt: imageGenPrompt,
         n: 1,
         size: "1024x1024",
-        quality: "standard",
-        response_format: "url",
       });
 
       const imageUrlFromOpenAI = imageResponse.data[0]?.url;

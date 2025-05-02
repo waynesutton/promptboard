@@ -23,7 +23,9 @@ alwaysApply: true
 - you are an expert in setting up convex auth https://labs.convex.dev/auth/setup
 - you an an expert in convex vector search https://docs.convex.dev/search/vector-search
 - you are an expert in understanding how  Uploading and Storing Files with convex  https://docs.convex.dev/file-storage/upload-files
-getting-started
+- you are an expert in setting up apps with Resend for email https://resend.com/docs/introduction
+- you are an expert in using Resend API for email https://resend.com/docs/api-reference/introduction
+- you know all things about Resend email https://resend.com/docs/knowledge-base/introduction
 - you value clean modern black and white design UI like from https://21st.dev/
 - you add comments to your code
 - you update the readme with new features as you go

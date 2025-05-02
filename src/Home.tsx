@@ -494,67 +494,65 @@ function Home() {
         </form>
       </Header>
 
-      <main className="flex-1 px-6 flex flex-col">
-        <div className="flex-grow mt-2">
-          <AutoSizer>
-            {({ height, width }) => {
-              if (width === 0 || height === 0) {
-                return null;
-              }
-              const calculatedColumnCount = columnCount;
-              const columnWidth = Math.floor(width / calculatedColumnCount);
-              const rowHeight = columnWidth;
-              const rowCount = Math.ceil(totalItems / calculatedColumnCount);
+      <main className="flex-1 px-6 flex flex-col pt-2">
+        <AutoSizer>
+          {({ height, width }) => {
+            if (width === 0 || height === 0) {
+              return null;
+            }
+            const calculatedColumnCount = columnCount;
+            const columnWidth = Math.floor(width / calculatedColumnCount);
+            const rowHeight = columnWidth;
+            const rowCount = Math.ceil(totalItems / calculatedColumnCount);
 
-              return (
-                <InfiniteLoader
-                  ref={infiniteLoaderRef}
-                  isItemLoaded={isItemLoaded}
-                  itemCount={totalItems}
-                  loadMoreItems={loadMoreItems}
-                  threshold={5}>
-                  {({
-                    onItemsRendered,
-                    ref,
-                  }: {
-                    onItemsRendered: (props: any) => any;
-                    ref: LegacyRef<Grid> | undefined;
-                  }) => (
-                    <Grid
-                      className="grid-container"
-                      columnCount={calculatedColumnCount}
-                      columnWidth={columnWidth}
-                      height={height}
-                      rowCount={rowCount}
-                      rowHeight={rowHeight}
-                      width={width}
-                      itemData={{
-                        items: galleryItems,
-                        columnCount: calculatedColumnCount,
-                        handleOpenModal,
-                      }}
-                      onItemsRendered={({
-                        visibleRowStartIndex,
-                        visibleRowStopIndex,
-                        overscanRowStartIndex,
-                        overscanRowStopIndex,
-                      }) => {
-                        onItemsRendered({
-                          overscanStartIndex: overscanRowStartIndex * calculatedColumnCount,
-                          overscanStopIndex: overscanRowStopIndex * calculatedColumnCount,
-                          visibleStartIndex: visibleRowStartIndex * calculatedColumnCount,
-                          visibleStopIndex: visibleRowStopIndex * calculatedColumnCount,
-                        });
-                      }}
-                      ref={ref}>
-                      {GridItem}
-                    </Grid>
-                  )}
-                </InfiniteLoader>
-              );
-            }}
-          </AutoSizer>
-        </div>
+            return (
+              <InfiniteLoader
+                ref={infiniteLoaderRef}
+                isItemLoaded={isItemLoaded}
+                itemCount={totalItems}
+                loadMoreItems={loadMoreItems}
+                threshold={5}>
+                {({
+                  onItemsRendered,
+                  ref,
+                }: {
+                  onItemsRendered: (props: any) => any;
+                  ref: Ref<any>;
+                }) => (
+                  <Grid
+                    className="grid-container"
+                    columnCount={calculatedColumnCount}
+                    columnWidth={columnWidth}
+                    height={height}
+                    rowCount={rowCount}
+                    rowHeight={rowHeight}
+                    width={width}
+                    itemData={{
+                      items: galleryItems,
+                      columnCount: calculatedColumnCount,
+                      handleOpenModal,
+                    }}
+                    onItemsRendered={({
+                      visibleRowStartIndex,
+                      visibleRowStopIndex,
+                      overscanRowStartIndex,
+                      overscanRowStopIndex,
+                    }) => {
+                      onItemsRendered({
+                        overscanStartIndex: overscanRowStartIndex * calculatedColumnCount,
+                        overscanStopIndex: overscanRowStopIndex * calculatedColumnCount,
+                        visibleStartIndex: visibleRowStartIndex * calculatedColumnCount,
+                        visibleStopIndex: visibleRowStopIndex * calculatedColumnCount,
+                      });
+                    }}
+                    ref={ref}>
+                    {GridItem}
+                  </Grid>
+                )}
+              </InfiniteLoader>
+            );
+          }}
+        </AutoSizer>
         {isLoadingMore && <p className="text-center text-gray-500 my-4">Loading more...</p>}
       </main>
 
