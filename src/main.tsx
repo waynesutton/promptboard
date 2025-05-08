@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ConvexReactClient, ConvexProvider } from "convex/react";
-import { ClerkProvider } from "@clerk/clerk-react";
+import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import "./index.css";
 import App from "./App";
 import Dashboard from "./Dashboard";
@@ -23,37 +23,39 @@ if (!CLERK_PUBLISHABLE_KEY || CLERK_PUBLISHABLE_KEY === "YOUR_CLERK_PUBLISHABLE_
 }
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-  },
-  {
-    path: "/dashboard",
-    element: <Dashboard />,
-  },
-  {
-    path: "/search",
-    element: <SearchPage />,
-  },
-  {
-    path: "/mod",
-    element: <ModPage />,
-  },
-  {
-    path: "/404",
-    element: <NotFoundPage />,
-  },
-  {
-    path: "*",
-    element: <NotFoundPage />,
-  },
+  { path: "/", element: <App /> },
+  { path: "/dashboard", element: <Dashboard /> },
+  { path: "/search", element: <SearchPage /> },
+  { path: "/mod", element: <ModPage /> },
+  { path: "/404", element: <NotFoundPage /> },
+  { path: "*", element: <NotFoundPage /> },
 ]);
+
+// Component to bridge Clerk auth with Convex client
+function ConvexAppWithClerk() {
+  const { getToken, isSignedIn } = useAuth();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      convex.setAuth(async () => {
+        const token = await getToken({ template: "convex" });
+        return token;
+      });
+    } else {
+      // If not signed in, clear any existing auth state from the Convex client
+      convex.clearAuth();
+    }
+  }, [isSignedIn, getToken]);
+
+  return <RouterProvider router={router} />;
+}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
       <ConvexProvider client={convex}>
-        <RouterProvider router={router} />
+        {/* ConvexAppWithClerk now handles passing the router and setting auth */}
+        <ConvexAppWithClerk />
       </ConvexProvider>
     </ClerkProvider>
   </React.StrictMode>

@@ -194,8 +194,11 @@ export const internalSaveProcessedImage = internalMutation({
 export const listGallery = query({
   args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
-    const images = await ctx.db.query("gallery").order("desc").paginate(args.paginationOpts);
-    // Return the full documents including pagination info
+    const images = await ctx.db
+      .query("gallery")
+      .filter((q) => q.neq(q.field("isHidden"), true)) // Filter out hidden images
+      .order("desc")
+      .paginate(args.paginationOpts);
     return images;
   },
 });
@@ -325,13 +328,10 @@ export const getLast20Prompts = query({
   handler: async (ctx) => {
     const prompts = await ctx.db
       .query("gallery")
-      .order("desc") // Order by _creationTime descending (default index)
-      .take(100); // Updated to 100
-    // Map to include clicks
-    return prompts.map((p) => ({
-      ...p, // Spread existing fields
-      clicks: p.clicks ?? 0, // Ensure clicks is returned, default to 0 if null/undefined
-    }));
+      .filter((q) => q.neq(q.field("isHidden"), true)) // Filter out hidden images
+      .order("desc")
+      .take(100);
+    return prompts.map((p) => ({ ...p, clicks: p.clicks ?? 0 }));
   },
 });
 
@@ -341,13 +341,10 @@ export const getLast20Styles = query({
   handler: async (ctx) => {
     const styles = await ctx.db
       .query("gallery")
-      .order("desc") // Order by _creationTime descending
-      .take(100); // Updated to 100
-    // Map to include clicks
-    return styles.map((s) => ({
-      ...s,
-      clicks: s.clicks ?? 0,
-    }));
+      .filter((q) => q.neq(q.field("isHidden"), true)) // Filter out hidden images
+      .order("desc")
+      .take(100);
+    return styles.map((s) => ({ ...s, clicks: s.clicks ?? 0 }));
   },
 });
 
@@ -357,13 +354,10 @@ export const getAllPrompts = query({
   handler: async (ctx) => {
     const prompts = await ctx.db
       .query("gallery")
-      .order("desc") // Order by _creationTime descending
-      .take(100); // Limit for performance
-    // Map to include clicks
-    return prompts.map((p) => ({
-      ...p,
-      clicks: p.clicks ?? 0,
-    }));
+      .filter((q) => q.neq(q.field("isHidden"), true)) // Filter out hidden images
+      .order("desc")
+      .take(100);
+    return prompts.map((p) => ({ ...p, clicks: p.clicks ?? 0 }));
   },
 });
 
@@ -371,16 +365,19 @@ export const getAllPrompts = query({
 export const getMostLikedImages = query({
   args: {},
   handler: async (ctx) => {
+    // To filter by isHidden and use the by_likes index efficiently,
+    // we might need a composite index if performance is critical,
+    // or accept that filtering happens after index retrieval for now.
     const images = await ctx.db
       .query("gallery")
-      .withIndex("by_likes", (q) => q) // Use the likes index
-      .order("desc") // Order by likes descending
-      .take(100); // Updated to 100
-    // Map to include clicks
-    return images.map((img) => ({
-      ...img,
-      clicks: img.clicks ?? 0,
-    }));
+      .withIndex("by_likes") // Use the likes index
+      // .filter((q) => q.neq(q.field("isHidden"), true)) // This filter runs post-index scan
+      .order("desc")
+      .take(200); // Take more to allow for filtering, then slice
+
+    const visibleImages = images.filter((img) => img.isHidden !== true).slice(0, 100);
+
+    return visibleImages.map((img) => ({ ...img, clicks: img.clicks ?? 0 }));
   },
 });
 
@@ -390,15 +387,14 @@ export const getMostCommentedImages = query({
   handler: async (ctx) => {
     const images = await ctx.db
       .query("gallery")
-      // Make sure index name matches schema: by_comment_count
-      .withIndex("by_comment_count", (q) => q)
-      .order("desc") // Order by commentCount descending
-      .take(100); // Updated to 100
-    // Map to include clicks
-    return images.map((img) => ({
-      ...img,
-      clicks: img.clicks ?? 0,
-    }));
+      .withIndex("by_comment_count")
+      // .filter((q) => q.neq(q.field("isHidden"), true)) // This filter runs post-index scan
+      .order("desc")
+      .take(200); // Take more to allow for filtering, then slice
+
+    const visibleImages = images.filter((img) => img.isHidden !== true).slice(0, 100);
+
+    return visibleImages.map((img) => ({ ...img, clicks: img.clicks ?? 0 }));
   },
 });
 
@@ -519,3 +515,55 @@ export const toggleHighlightImage = mutation({
 });
 
 // --- END MODERATION ACTIONS ---
+
+// --- NEW: Public Full-Text Search Query (filters hidden items) ---
+export const publicSearchCombined = query({
+  args: { searchQuery: v.string() },
+  handler: async (ctx, args): Promise<Doc<"gallery">[]> => {
+    const cleanedQuery = args.searchQuery.trim();
+    if (!cleanedQuery) {
+      return [];
+    }
+
+    // 1. Search gallery table (prompt and authorName), filtering hidden
+    const galleryResults = await ctx.db
+      .query("gallery")
+      .filter((q) => q.neq(q.field("isHidden"), true)) // Filter hidden
+      .withSearchIndex("search_all", (q) => q.search("prompt", cleanedQuery))
+      .take(20);
+
+    // 2. Search comments table (text)
+    const commentResults = await ctx.db
+      .query("comments")
+      // We need to get galleryIds from comments, then filter those gallery items by isHidden
+      .withSearchIndex("search_text", (q) => q.search("text", cleanedQuery))
+      .collect();
+
+    // Get gallery docs for comments and filter them
+    const galleryIdsFromCommentsUnfiltered = new Set(commentResults.map((doc) => doc.galleryId));
+    const galleryDocsFromComments = await Promise.all(
+      Array.from(galleryIdsFromCommentsUnfiltered).map((id) => ctx.db.get(id))
+    );
+    const galleryIdsFromComments = new Set(
+      galleryDocsFromComments.filter((doc) => doc && doc.isHidden !== true).map((doc) => doc!._id)
+    );
+
+    const galleryIdsFromPrompts = new Set(galleryResults.map((doc) => doc._id));
+
+    const allMatchingGalleryIds = new Set([...galleryIdsFromPrompts, ...galleryIdsFromComments]);
+
+    if (allMatchingGalleryIds.size === 0) {
+      return [];
+    }
+
+    // Fetch the full gallery documents for the unique IDs
+    // These should already be filtered for isHidden where applicable
+    const finalGalleryDocs = await Promise.all(
+      Array.from(allMatchingGalleryIds).map((id) => ctx.db.get(id))
+    );
+
+    return finalGalleryDocs.filter(
+      (doc): doc is Doc<"gallery"> => doc !== null && doc.isHidden !== true
+    );
+  },
+});

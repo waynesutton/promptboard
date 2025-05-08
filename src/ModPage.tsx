@@ -61,7 +61,6 @@ function ModPage() {
   const deleteImageMutation = useMutation(api.gallery.deleteImage);
   const toggleHideImageMutation = useMutation(api.gallery.toggleHideImage);
   const toggleHighlightImageMutation = useMutation(api.gallery.toggleHighlightImage);
-  const addLike = useMutation(api.gallery.addLike);
   const getComments = useQuery(
     api.gallery.getComments,
     modalImageId ? { galleryId: modalImageId } : "skip"
@@ -227,7 +226,6 @@ function ModPage() {
                           <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-x-4 gap-y-1 items-center">
                             <span>Style: {item.style}</span>
                             {item.authorName && <span>Author: {item.authorName}</span>}
-                            <span>Likes: {item.likes}</span>
                             {item.isHidden && (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                 <EyeOff size={12} /> Hidden
@@ -379,11 +377,6 @@ function ModPage() {
                           onClick={handleDownload}
                           className="flex items-center gap-1.5 px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-sm transition-colors">
                           <Download size={16} /> Download
-                        </button>
-                        <button
-                          onClick={() => addLike({ galleryId: currentModalDoc._id })}
-                          className="flex items-center gap-1.5 px-4 py-2 text-sm bg-pink-500 hover:bg-pink-600 text-white rounded-md shadow-sm transition-colors">
-                          <Star size={16} /> Like ({currentModalDoc.likes})
                         </button>
                       </div>
 

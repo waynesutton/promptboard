@@ -7,7 +7,7 @@ import Header from "./components/Header"; // Import the updated Header component
 
 // Define the type for a gallery document for the dashboard
 // Include all fields needed for the tables, including clicks
-interface DashboardGalleryDoc {
+interface DashboardGalleryDoc extends Doc<"gallery"> {
   _id: Id<"gallery">;
   _creationTime: number;
   storageId: Id<"_storage">;
@@ -19,6 +19,8 @@ interface DashboardGalleryDoc {
   clicks: number; // Add clicks field
   authorName?: string; // Add author name
   authorSocialLink?: string; // Add author social link
+  isHighlighted?: boolean; // Add isHighlighted
+  isHidden?: boolean; // Add isHidden (though queries filter them, good for type consistency)
 }
 
 // --- Removed the old inline Header component definition ---
@@ -128,84 +130,77 @@ function DataTable({ data, columns, activeTab, onPromptClick }: DataTableProps) 
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {data?.map(
-            (
-              item,
-              index // Use optional chaining and add index
-            ) => (
-              <tr key={item._id}>
-                {/* Conditionally add Rank data cell */}
-                {showRankColumn && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                    {index + 1}
-                  </td>
-                )}
-                {columns.includes("Prompt") && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">
+          {data?.map((item, index) => (
+            <tr key={item._id} className={`${item.isHighlighted ? "bg-red-50" : ""}`}>
+              {/* Conditionally add Rank data cell */}
+              {showRankColumn && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                  {index + 1}
+                </td>
+              )}
+              {columns.includes("Prompt") && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm max-w-xs truncate">
+                  <a
+                    href={`/?imageId=${item._id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`hover:underline cursor-pointer ${item.isHighlighted ? "text-[#EB2E2A] font-semibold" : "text-gray-900"}`}
+                    title={item.prompt}
+                    onClick={(e) => {
+                      onPromptClick(item._id);
+                    }}>
+                    {item.prompt}
+                    {item.isHighlighted && (
+                      <span className="ml-2 text-xs text-red-600 font-bold">(H)</span>
+                    )}
+                  </a>
+                </td>
+              )}
+              {columns.includes("Style") && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.style}</td>
+              )}
+              {/* Add Author Name column */}
+              {columns.includes("Author") && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {item.authorName || "N/A"}
+                </td>
+              )}
+              {/* Add Social Link column */}
+              {columns.includes("Social Link") && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {item.authorSocialLink ? (
                     <a
-                      href={`/?imageId=${item._id}`}
+                      href={item.authorSocialLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:underline cursor-pointer"
-                      title={item.prompt} // Add title for full prompt on hover
-                      onClick={(e) => {
-                        // e.preventDefault(); // Prevent default if handling navigation differently
-                        onPromptClick(item._id);
-                      }}>
-                      {item.prompt}
+                      className="text-blue-600 hover:underline">
+                      Profile
                     </a>
-                  </td>
-                )}
-                {columns.includes("Style") && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item.style}
-                  </td>
-                )}
-                {/* Add Author Name column */}
-                {columns.includes("Author") && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item.authorName || "N/A"}
-                  </td>
-                )}
-                {/* Add Social Link column */}
-                {columns.includes("Social Link") && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item.authorSocialLink ? (
-                      <a
-                        href={item.authorSocialLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline">
-                        Profile
-                      </a>
-                    ) : (
-                      "N/A"
-                    )}
-                  </td>
-                )}
-                {columns.includes("Likes") && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item.likes}
-                  </td>
-                )}
-                {columns.includes("Comments") && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item.commentCount ?? 0}
-                  </td>
-                )}
-                {columns.includes("Clicks") && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {item.clicks ?? 0}
-                  </td>
-                )}
-                {columns.includes("Date Submitted") && (
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(item._creationTime)}
-                  </td>
-                )}
-              </tr>
-            )
-          )}
+                  ) : (
+                    "N/A"
+                  )}
+                </td>
+              )}
+              {columns.includes("Likes") && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.likes}</td>
+              )}
+              {columns.includes("Comments") && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {item.commentCount ?? 0}
+                </td>
+              )}
+              {columns.includes("Clicks") && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {item.clicks ?? 0}
+                </td>
+              )}
+              {columns.includes("Date Submitted") && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {formatDate(item._creationTime)}
+                </td>
+              )}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

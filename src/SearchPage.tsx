@@ -27,6 +27,10 @@ interface GalleryDoc {
   clicks?: number;
 }
 
+interface SearchPageGalleryDoc extends Doc<"gallery"> {
+  isHighlighted?: boolean;
+}
+
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -44,16 +48,15 @@ function SearchPage() {
   const [authorSocialLinkInput, setAuthorSocialLinkInput] = useState(""); // For modal author input
 
   const results = useQuery(
-    api.gallery.searchCombined,
-    // Pass query only if it's not empty, otherwise skip query
+    api.gallery.publicSearchCombined,
     initialQuery ? { searchQuery: initialQuery } : "skip"
-  );
-  const isLoading = results === undefined; // Loading state based on useQuery result
+  ) as SearchPageGalleryDoc[] | undefined | null;
+  const isLoading = results === undefined;
 
   const galleryCount = useQuery(api.gallery.getGalleryCount) || 0;
 
   // --- Modal Data Fetching & Logic (Adopted from Home.tsx) ---
-  const modalImageData =
+  const modalImageData: SearchPageGalleryDoc | null | undefined =
     modalImageId && results ? results.find((img) => img._id === modalImageId) : null;
   const getComments = useQuery(
     api.gallery.getComments,
@@ -241,10 +244,15 @@ function SearchPage() {
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Results ({results.length})</h3>
             <ul className="divide-y divide-gray-200 border border-gray-200 rounded-md bg-white shadow-sm">
-              {results.map((item) => (
-                <li key={item._id} className="p-4 hover:bg-gray-50">
+              {(results as SearchPageGalleryDoc[]).map((item) => (
+                <li
+                  key={item._id}
+                  className={`p-4 hover:bg-gray-50 ${item.isHighlighted ? "border-2 border-[#EB2E2A] rounded" : ""}`}>
                   <button onClick={() => handleOpenModal(item)} className="text-left w-full">
-                    <p className="font-semibold text-blue-600 hover:underline">{item.prompt}</p>
+                    <p
+                      className={`font-semibold ${item.isHighlighted ? "text-[#EB2E2A]" : "text-blue-600"} hover:underline`}>
+                      {item.prompt}
+                    </p>
                     <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-x-4 gap-y-1">
                       <span>Style: {item.style}</span>
                       {item.authorName && <span>Author: {item.authorName}</span>}
@@ -269,7 +277,8 @@ function SearchPage() {
       {/* --- Modal Rendering (Adopted from Home.tsx) --- */}
       {modalImageId && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 relative max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div
+            className={`bg-white rounded-lg p-6 relative max-w-lg w-full max-h-[90vh] overflow-y-auto ${modalImageData?.isHighlighted ? "border-2 border-[#EB2E2A] ring-offset-2" : ""}`}>
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-black z-20"
               onClick={handleCloseModal}>

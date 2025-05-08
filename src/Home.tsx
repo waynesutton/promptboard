@@ -90,6 +90,7 @@ interface GalleryDoc {
   authorName?: string;
   authorSocialLink?: string;
   authorEmail?: string;
+  isHighlighted?: boolean;
 }
 
 // New component to render a single gallery image start
@@ -116,8 +117,8 @@ function GalleryImageItem({ imageDoc, style, onClick }: GalleryImageItemProps) {
   return (
     <div style={style} className="p-0.5">
       <div
-        className="aspect-square cursor-pointer bg-gray-200 border border-gray-300 overflow-hidden w-full h-full"
-        onClick={() => onClick(imageDoc)}>
+        className={`aspect-square cursor-pointer bg-gray-200 border border-gray-300 overflow-hidden w-full h-full ${imageDoc?.isHighlighted ? "ring-2 ring-[#EB2E2A] ring-inset" : ""}`}
+        onClick={() => onClick(imageDoc!)}>
         {imageResult?.imageUrl ? (
           <img
             src={imageResult.imageUrl}
@@ -166,7 +167,9 @@ function Home() {
     api.gallery.getComments,
     modalImageId ? { galleryId: modalImageId } : "skip"
   );
-  const modalImageData = modalImageId ? galleryItems.find((img) => img._id === modalImageId) : null;
+  const modalImageData = modalImageId
+    ? galleryItems.find((img): img is GalleryDoc => img._id === modalImageId)
+    : null;
 
   const isLimitReached = galleryCount >= MAX_GALLERY_COUNT;
   const isLoadingMore = galleryStatus === "LoadingMore";
@@ -590,9 +593,10 @@ function Home() {
         </div>
       )}
 
-      {modalImageId && (
+      {modalImageId && modalImageData && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 relative max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div
+            className={`bg-white rounded-lg p-6 relative max-w-lg w-full max-h-[90vh] overflow-y-auto ${modalImageData?.isHighlighted ? "ring-2 ring-[#EB2E2A] ring-offset-2" : ""}`}>
             <button
               className="absolute top-2 right-2 text-gray-500 hover:text-black z-20"
               onClick={handleCloseModal}>
