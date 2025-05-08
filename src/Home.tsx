@@ -117,7 +117,7 @@ function GalleryImageItem({ imageDoc, style, onClick }: GalleryImageItemProps) {
   return (
     <div style={style} className="p-0.5">
       <div
-        className={`aspect-square cursor-pointer bg-gray-200 border border-gray-300 overflow-hidden w-full h-full ${imageDoc?.isHighlighted ? "ring-2 ring-[#EB2E2A] ring-inset" : ""}`}
+        className={`aspect-square cursor-pointer bg-gray-200 border border-gray-300 overflow-hidden w-full h-full ${imageDoc?.isHighlighted ? "ring-2 ring-[#EB2E2A] border-8 border-red-600 ring-inset" : ""}`}
         onClick={() => onClick(imageDoc!)}>
         {imageResult?.imageUrl ? (
           <img
