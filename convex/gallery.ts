@@ -451,3 +451,71 @@ export const searchCombined = query({
     return galleryDocs.filter((doc): doc is Doc<"gallery"> => doc !== null);
   },
 });
+
+// --- MODERATION ACTIONS (NEW) ---
+
+// Helper to check for authenticated user (admin/moderator)
+const ensureAuthenticated = async (ctx: any) => {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) {
+    throw new Error("User must be authenticated to perform this action.");
+  }
+  // You might want to check identity.subject for specific user IDs
+  // or query a 'moderators' table if you have role-based access.
+  // For now, any authenticated user can perform these actions.
+  return identity;
+};
+
+export const deleteImage = mutation({
+  args: { galleryId: v.id("gallery") },
+  handler: async (ctx, args) => {
+    await ensureAuthenticated(ctx);
+
+    const image = await ctx.db.get(args.galleryId);
+    if (!image) {
+      throw new Error("Image not found");
+    }
+
+    // Delete the file from storage
+    await ctx.storage.delete(image.storageId);
+
+    // Delete comments associated with the image
+    const comments = await ctx.db
+      .query("comments")
+      .withIndex("by_gallery", (q) => q.eq("galleryId", args.galleryId))
+      .collect();
+    await Promise.all(comments.map((comment) => ctx.db.delete(comment._id)));
+
+    // Delete the gallery document
+    await ctx.db.delete(args.galleryId);
+    return { success: true };
+  },
+});
+
+export const toggleHideImage = mutation({
+  args: { galleryId: v.id("gallery") },
+  handler: async (ctx, args) => {
+    await ensureAuthenticated(ctx);
+    const image = await ctx.db.get(args.galleryId);
+    if (!image) {
+      throw new Error("Image not found");
+    }
+    await ctx.db.patch(args.galleryId, { isHidden: !image.isHidden });
+    return { success: true, isHidden: !image.isHidden };
+  },
+});
+
+export const toggleHighlightImage = mutation({
+  args: { galleryId: v.id("gallery") },
+  handler: async (ctx, args) => {
+    await ensureAuthenticated(ctx);
+    const image = await ctx.db.get(args.galleryId);
+    if (!image) {
+      throw new Error("Image not found");
+    }
+    await ctx.db.patch(args.galleryId, { isHighlighted: !image.isHighlighted });
+    return { success: true, isHighlighted: !image.isHighlighted };
+  },
+});
+
+// --- END MODERATION ACTIONS ---

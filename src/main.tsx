@@ -1,24 +1,60 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ConvexProvider, ConvexReactClient } from "convex/react";
-import Home from "./Home";
-import SearchPage from "./SearchPage";
-import Dashboard from "./Dashboard";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ConvexReactClient, ConvexProvider } from "convex/react";
+import { ClerkProvider } from "@clerk/clerk-react";
 import "./index.css";
+import App from "./App";
+import Dashboard from "./Dashboard";
+import SearchPage from "./SearchPage";
+import ModPage from "./ModPage";
+import NotFoundPage from "./NotFoundPage";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
+// --- IMPORTANT: Replace with your Clerk Publishable Key ---
+const CLERK_PUBLISHABLE_KEY =
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || "YOUR_CLERK_PUBLISHABLE_KEY";
+
+if (!CLERK_PUBLISHABLE_KEY || CLERK_PUBLISHABLE_KEY === "YOUR_CLERK_PUBLISHABLE_KEY") {
+  console.warn(
+    "Clerk Publishable Key is not set or is using the placeholder. Please set VITE_CLERK_PUBLISHABLE_KEY in your .env file."
+  );
+}
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+  },
+  {
+    path: "/dashboard",
+    element: <Dashboard />,
+  },
+  {
+    path: "/search",
+    element: <SearchPage />,
+  },
+  {
+    path: "/mod",
+    element: <ModPage />,
+  },
+  {
+    path: "/404",
+    element: <NotFoundPage />,
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
+  },
+]);
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ConvexProvider client={convex}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </BrowserRouter>
-    </ConvexProvider>
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+      <ConvexProvider client={convex}>
+        <RouterProvider router={router} />
+      </ConvexProvider>
+    </ClerkProvider>
   </React.StrictMode>
 );

@@ -1,18 +1,11 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./Home"; // Import the Home component
-import Dashboard from "./Dashboard"; // Import the Dashboard component (will create next)
-import NotFoundPage from "./NotFoundPage"; // Import the 404 page component
+// import Dashboard from "./Dashboard"; // Dashboard is handled by main.tsx routing
+// import NotFoundPage from "./NotFoundPage"; // NotFound can be handled by main.tsx routing or a root error element
 
 function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Router>
-  );
+  // App component now just renders the content for the root path ("/")
+  // Routing is handled by src/main.tsx
+  return <Home />;
 }
 
 export default App;

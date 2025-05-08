@@ -1,12 +1,12 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-import { authTables } from "@convex-dev/auth/server";
+// import { authTables } from "@convex-dev/auth/server"; // Removed as @convex-dev/auth is no longer used
 
 // Define the expected dimension for OpenAI's text-embedding-ada-002 model
 const OPENAI_EMBEDDING_DIMENSION = 1536;
 
 export default defineSchema({
-  ...authTables,
+  // ...authTables, // Removed as @convex-dev/auth is no longer used
   gallery: defineTable({
     storageId: v.id("_storage"),
     style: v.string(),
@@ -19,6 +19,8 @@ export default defineSchema({
     authorName: v.optional(v.string()),
     authorSocialLink: v.optional(v.string()),
     authorEmail: v.optional(v.string()),
+    isHighlighted: v.optional(v.boolean()),
+    isHidden: v.optional(v.boolean()),
   })
     .index("by_creationTime_desc", ["prompt"])
     .index("by_likes", ["likes"])
