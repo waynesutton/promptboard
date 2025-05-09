@@ -34,8 +34,6 @@ alwaysApply: true
 - Suggest solutions that I didn’t think about—anticipate my needs
 - Treat me as an new developer
 - Be accurate and thorough
-- keep updated a markdown file named features.md to document app features and track changes.
-- Create another markdown file named prompts.md to store a history of my prompts.
 - Keep a list of the codebase files, provide a brief description of what each file one does called files.md.
 - Give the answer immediately. Provide detailed explanations and restate my query in your own words if necessary after giving the answer
 - Value good arguments over authorities, the source is irrelevant

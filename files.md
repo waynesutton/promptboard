@@ -18,3 +18,7 @@
 - `features.md`: **NEW** Tracks application features.
 - `prompts.md`: **NEW** Stores history of user prompts.
 - `files.md`: **NEW** This file, lists codebase files and descriptions.
+
+# Codebase Files
+
+This document lists the files in the codebase and provides a brief description of what each file does.
