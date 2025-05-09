@@ -62,12 +62,14 @@ Winners will also receive Convex swag and startup credits. Let the prompt cookin
   - VC Mode Edition (Conference badge style for VCs)
   - Infra Eng Mode (Dark-mode, tactical aesthetic for infra engineers)
   - Founder Hacker Card (Gritty, neon-lit hacker founder vibe)
+  - Pixel Art (16-bit RPG sprite style)
 
 - **Community Gallery & Interaction**:
 
   - Browse generated images in a dynamic, responsive grid layout.
   - Images load progressively as you scroll or via a "Load More" button.
   - Click any image to open a modal for a larger view and details (prompt, style).
+  - Navigate images within the modal using on-screen left/right arrows (appear on hover), keyboard arrow keys, or swipe gestures (trackpad/mobile).
   - Interact with images in the modal: Add likes, view/add comments, and copy direct shareable links.
   - Download generated images directly from the modal.
   - Add optional author name and social link to generated images (one time per image).
@@ -95,7 +97,7 @@ Winners will also receive Convex swag and startup credits. Let the prompt cookin
 - Frontend: React + Vite
 - Backend: Convex
 - Styling: TailwindCSS
-- AI: openai
+- AI: OpenAI
 - Language: TypeScript
 
 ## Getting Started
@@ -103,12 +105,12 @@ Winners will also receive Convex swag and startup credits. Let the prompt cookin
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Set up environment variables:
-   - Add openai API key to Convex environment
+   - Add OpenAI API key to Convex environment
 4. Start development server: `npm run dev`
 
 ## Environment Setup
 
-Add your openai API key to Convex:
+Add your OpenAI API key to Convex:
 
 1. Open Convex dashboard
 2. Go to Settings
