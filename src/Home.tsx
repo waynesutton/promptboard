@@ -91,6 +91,7 @@ interface GalleryDoc {
   authorSocialLink?: string;
   authorEmail?: string;
   isHighlighted?: boolean;
+  customMessage?: string;
 }
 
 // New component to render a single gallery image start
@@ -623,6 +624,14 @@ function Home() {
             )}
             {modalImageData && (
               <div className="mb-4 text-sm">
+                {/* Display Custom Admin Message if it exists */}
+                {modalImageData.customMessage && (
+                  <div className="mb-3 p-3 bg-red-600 text-white rounded-md text-sm">
+                    <p>
+                      <strong>Admin Message:</strong> {modalImageData.customMessage}
+                    </p>
+                  </div>
+                )}
                 <p>
                   <strong>Prompt:</strong> {modalImageData.prompt}
                 </p>

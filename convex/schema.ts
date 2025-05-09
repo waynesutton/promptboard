@@ -21,6 +21,7 @@ export default defineSchema({
     authorEmail: v.optional(v.string()),
     isHighlighted: v.optional(v.boolean()),
     isHidden: v.optional(v.boolean()),
+    customMessage: v.optional(v.string()),
   })
     .index("by_creationTime_desc", ["prompt"])
     .index("by_likes", ["likes"])

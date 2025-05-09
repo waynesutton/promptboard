@@ -29,6 +29,7 @@ import {
 type ModGalleryDoc = Doc<"gallery"> & {
   isHighlighted?: boolean;
   isHidden?: boolean;
+  customMessage?: string;
 };
 
 function ModPage() {
@@ -42,6 +43,7 @@ function ModPage() {
   const [modalImageId, setModalImageId] = useState<Id<"gallery"> | null>(null);
   const [modalImage, setModalImage] = useState<string | undefined>();
   const [currentModalDoc, setCurrentModalDoc] = useState<ModGalleryDoc | null>(null);
+  const [customMessageInput, setCustomMessageInput] = useState("");
 
   // Determine if the user is an admin
   const isAdmin =
@@ -61,6 +63,7 @@ function ModPage() {
   const deleteImageMutation = useMutation(api.gallery.deleteImage);
   const toggleHideImageMutation = useMutation(api.gallery.toggleHideImage);
   const toggleHighlightImageMutation = useMutation(api.gallery.toggleHighlightImage);
+  const addOrUpdateCustomMessageMutation = useMutation(api.gallery.addOrUpdateCustomMessage);
   const getComments = useQuery(
     api.gallery.getComments,
     modalImageId ? { galleryId: modalImageId } : "skip"
@@ -93,12 +96,14 @@ function ModPage() {
   const handleOpenModal = (imageDoc: ModGalleryDoc) => {
     setModalImageId(imageDoc._id);
     setCurrentModalDoc(imageDoc);
+    setCustomMessageInput(imageDoc.customMessage || "");
   };
 
   const handleCloseModal = () => {
     setModalImageId(null);
     setModalImage(undefined);
     setCurrentModalDoc(null);
+    setCustomMessageInput("");
   };
 
   const handleDelete = async () => {
@@ -139,6 +144,21 @@ function ModPage() {
     } catch (error) {
       console.error("Failed to toggle highlight image:", error);
       alert("Error highlighting image. See console for details.");
+    }
+  };
+
+  const handleSaveCustomMessage = async () => {
+    if (!isAdmin || !modalImageId || !currentModalDoc) return;
+    try {
+      await addOrUpdateCustomMessageMutation({
+        galleryId: modalImageId,
+        customMessage: customMessageInput,
+      });
+      setCurrentModalDoc((prev) => (prev ? { ...prev, customMessage: customMessageInput } : null));
+      alert("Custom message saved successfully!");
+    } catch (error) {
+      console.error("Failed to save custom message:", error);
+      alert("Error saving custom message. See console for details.");
     }
   };
 
@@ -342,6 +362,13 @@ function ModPage() {
                           Loading image...
                         </div>
                       )}
+                      {currentModalDoc.customMessage && (
+                        <div className="mb-3 p-3 bg-red-600 text-white rounded-md text-sm">
+                          <p>
+                            <strong>Admin Message:</strong> {currentModalDoc.customMessage}
+                          </p>
+                        </div>
+                      )}
                       <div className="text-sm text-gray-700 space-y-1 mb-5">
                         <p>
                           <strong>Prompt:</strong> {currentModalDoc.prompt}
@@ -377,6 +404,28 @@ function ModPage() {
                           onClick={handleDownload}
                           className="flex items-center gap-1.5 px-4 py-2 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-sm transition-colors">
                           <Download size={16} /> Download
+                        </button>
+                      </div>
+
+                      <div className="my-4 pt-4 border-t border-gray-200">
+                        <label
+                          htmlFor="customMessage"
+                          className="block text-sm font-medium text-gray-700 mb-1">
+                          Custom Admin Message:
+                        </label>
+                        <textarea
+                          id="customMessage"
+                          rows={3}
+                          className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#EB2E2A] focus:border-[#EB2E2A] sm:text-sm"
+                          value={customMessageInput}
+                          onChange={(e) => setCustomMessageInput(e.target.value)}
+                          placeholder="Enter a message to display for this image (visible in modal)..."
+                        />
+                        <button
+                          onClick={handleSaveCustomMessage}
+                          disabled={customMessageInput === (currentModalDoc.customMessage || "")}
+                          className="mt-2 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                          Save Message
                         </button>
                       </div>
 

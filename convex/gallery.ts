@@ -450,22 +450,71 @@ export const searchCombined = query({
 
 // --- MODERATION ACTIONS (NEW) ---
 
-// Helper to check for authenticated user (admin/moderator)
+// Original helper to check for authenticated user
 const ensureAuthenticated = async (ctx: any) => {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
     throw new Error("User must be authenticated to perform this action.");
   }
-  // You might want to check identity.subject for specific user IDs
-  // or query a 'moderators' table if you have role-based access.
-  // For now, any authenticated user can perform these actions.
+  // This version does NOT check for admin role, only authentication.
+  return identity;
+};
+
+// New helper specifically for Admin role checking using Clerk
+const ensureAdminPrivileges = async (ctx: any) => {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) {
+    throw new Error("User must be authenticated to perform this action.");
+  }
+
+  // ---- START DETAILED DEBUG LOGGING ----
+  console.log(
+    "[ensureAdminPrivileges] RAW CLERK IDENTITY OBJECT:",
+    JSON.stringify(identity, null, 2)
+  );
+  // Log both casings to be sure
+  console.log(
+    "[ensureAdminPrivileges] Raw identity.publicMetadata (camelCase):",
+    JSON.stringify(identity.publicMetadata, null, 2) // camelCase
+  );
+  console.log(
+    "[ensureAdminPrivileges] Raw identity.public_metadata (snake_case):",
+    JSON.stringify((identity as any).public_metadata, null, 2) // snake_case, cast to any to access
+  );
+  console.log(
+    "[ensureAdminPrivileges] Raw organizationMemberships:",
+    JSON.stringify(identity.organizationMemberships, null, 2)
+  );
+  // ---- END DETAILED DEBUG LOGGING ----
+
+  // Try accessing public_metadata with snake_case first, then camelCase as a fallback if needed.
+  // The raw JWT log shows it as "public_metadata".
+  const clerkPublicMetadata = (identity as any).public_metadata as { role?: string } | undefined;
+
+  // We are not using org roles for this user, so organizationMemberships check is secondary
+  const organizationMemberships = identity.organizationMemberships as
+    | { orgId: string; role: string }[]
+    | undefined;
+  const isOrgAdmin = organizationMemberships?.some((mem) => mem.role === "admin");
+
+  const isAdminUser = clerkPublicMetadata?.role === "admin" || isOrgAdmin;
+
+  if (!isAdminUser) {
+    console.warn(
+      `ADMIN CHECK FAILED (ensureAdminPrivileges) for user: ${identity.subject}, Email: ${identity.email}. From JWT public_metadata.role: ${clerkPublicMetadata?.role}, Parsed isOrgAdmin: ${isOrgAdmin}`
+    );
+    throw new Error(
+      "User is not authorized for this admin-specific action. Admin privileges required."
+    );
+  }
+  console.log(`[ensureAdminPrivileges] Admin check passed for user: ${identity.subject}`);
   return identity;
 };
 
 export const deleteImage = mutation({
   args: { galleryId: v.id("gallery") },
   handler: async (ctx, args) => {
-    await ensureAuthenticated(ctx);
+    await ensureAuthenticated(ctx); // Uses original, non-admin check
 
     const image = await ctx.db.get(args.galleryId);
     if (!image) {
@@ -491,7 +540,7 @@ export const deleteImage = mutation({
 export const toggleHideImage = mutation({
   args: { galleryId: v.id("gallery") },
   handler: async (ctx, args) => {
-    await ensureAuthenticated(ctx);
+    await ensureAuthenticated(ctx); // Uses original, non-admin check
     const image = await ctx.db.get(args.galleryId);
     if (!image) {
       throw new Error("Image not found");
@@ -504,7 +553,7 @@ export const toggleHideImage = mutation({
 export const toggleHighlightImage = mutation({
   args: { galleryId: v.id("gallery") },
   handler: async (ctx, args) => {
-    await ensureAuthenticated(ctx);
+    await ensureAuthenticated(ctx); // Uses original, non-admin check
     const image = await ctx.db.get(args.galleryId);
     if (!image) {
       throw new Error("Image not found");
@@ -565,5 +614,20 @@ export const publicSearchCombined = query({
     return finalGalleryDocs.filter(
       (doc): doc is Doc<"gallery"> => doc !== null && doc.isHidden !== true
     );
+  },
+});
+
+export const addOrUpdateCustomMessage = mutation({
+  args: {
+    galleryId: v.id("gallery"),
+    customMessage: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ensureAdminPrivileges(ctx); // Uses the new admin-specific checker
+
+    const { galleryId, customMessage } = args;
+    const messageToStore = customMessage.trim() === "" ? undefined : customMessage;
+    await ctx.db.patch(galleryId, { customMessage: messageToStore });
+    return { success: true, messageId: galleryId };
   },
 });
