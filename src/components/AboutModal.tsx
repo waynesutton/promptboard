@@ -49,13 +49,17 @@ function AboutModal() {
               About
             </h2>
             <p className="mb-4 text-[#374151] font-['Inter']">
-              <strong>1 Million Prompts</strong> is a community-powered AI image generator built
-              with Convex, Convex Chef, and OpenAI. Every image contributes to a global goal:
-              reaching 1,000,000 AI Image prompts.
+              <strong>1 Million Prompts</strong> is a prompt image generation contest built with
+              Convex and OpenAI. Every image contributes to a global goal of reaching 1,000,000
+              AI-generated images on a signal page.
             </p>
             <p className="mb-4 text-[#374151] font-['Inter']">
-              Track progress in real-time, explore a living prompt gallery, and generate images in
-              your favorite styles—from ghibli to pop art to thermal silhouettes.
+              Track progress in the real-time{" "}
+              <strong>
+                <a href="/dashboard">leaderboard</a>
+              </strong>
+              , explore a living prompt gallery, and generate images in your favorite styles—from
+              ghibli to pop art to thermal silhouettes.
             </p>
             <p className="mb-4 text-[#374151] font-['Inter']">
               Because everyone has a creative prompt in them—and we want to see it.
