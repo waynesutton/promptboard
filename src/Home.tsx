@@ -348,7 +348,7 @@ function Home() {
           !turnstileWidgetRef.current.innerHTML
         ) {
           widgetId = window.turnstile.render(turnstileWidgetRef.current, {
-            sitekey: "0x4AAAAAABPtvtoxSb2wsHA6", // REPLACE with your actual sitekey
+            sitekey: "0x4AAAAAABPtvtoxSb2wsHA6", // REPLACE with your actual sitekey cLOUDFLARE TURNSTILE YOUR_CLOUDFLARE_TURNSTILE_SITE_KEY
             callback: function (token) {
               setTurnstileToken(token);
             },
@@ -616,7 +616,7 @@ function Home() {
           {!isLimitReached && (
             <div
               ref={turnstileWidgetRef}
-              className="turnstile-container sm:mx-2 flex items-center justify-center min-h-[65px] min-w-[300px]"></div>
+              className="turnstile-container sm:mx-2 flex items-center justify-center min-h-[1px] min-w-[00px]"></div>
           )}
           <button
             type="submit"
