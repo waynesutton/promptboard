@@ -7,6 +7,8 @@ import {
   LegacyRef,
   RefObject,
   Ref,
+  InstanceType,
+  useCallback,
 } from "react";
 import { useAction, useMutation, useQuery, usePaginatedQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
@@ -19,6 +21,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { FixedSizeGrid as Grid, GridChildComponentProps } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import AutoSizer from "react-virtualized-auto-sizer";
+import { useSwipeable } from "react-swipeable";
 
 // Remove logo IDs
 // const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
@@ -142,7 +145,6 @@ function Home() {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentWord, setCurrentWord] = useState(0);
-  const [modalImage, setModalImage] = useState<string | undefined>();
   const [modalImageId, setModalImageId] = useState<Id<"gallery"> | null>(null);
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [newComment, setNewComment] = useState("");
@@ -155,7 +157,7 @@ function Home() {
   const [authorSocialLinkInput, setAuthorSocialLinkInput] = useState("");
   const [authorEmailInput, setAuthorEmailInput] = useState("");
   const [columnCount, setColumnCount] = useState(10);
-  const infiniteLoaderRef = useRef<InfiniteLoader>(null);
+  const infiniteLoaderRef = useRef<typeof InfiniteLoader | null>(null);
 
   // Queries
   const {
@@ -181,6 +183,47 @@ function Home() {
   const addComment = useMutation(api.gallery.addComment);
   const addLike = useMutation(api.gallery.addLike);
   const saveAuthorInfo = useMutation(api.gallery.addAuthorInfo);
+
+  // --- New: Queries for next/previous images in modal ---
+  const prevImageDataResult = useQuery(
+    api.gallery.getAdjacentGalleryImage,
+    modalImageId ? { currentImageId: modalImageId, direction: "previous" } : "skip"
+  );
+  const nextImageDataResult = useQuery(
+    api.gallery.getAdjacentGalleryImage,
+    modalImageId ? { currentImageId: modalImageId, direction: "next" } : "skip"
+  );
+  // --- End: New Queries ---
+
+  // --- Wrapped navigation handlers in useCallback for useEffect dependency array ---
+  const navigateToImage = useCallback((newImageId: Id<"gallery"> | null | undefined) => {
+    if (newImageId) {
+      setModalImageId(newImageId);
+      setAuthorNameInput("");
+      setAuthorSocialLinkInput("");
+      setAuthorEmailInput("");
+    }
+  }, []); // No external dependencies other than setters, so empty array is fine
+
+  const handlePreviousImage = useCallback(() => {
+    if (prevImageDataResult?._id) {
+      navigateToImage(prevImageDataResult._id);
+    }
+  }, [prevImageDataResult, navigateToImage]);
+
+  const handleNextImage = useCallback(() => {
+    if (nextImageDataResult?._id) {
+      navigateToImage(nextImageDataResult._id);
+    }
+  }, [nextImageDataResult, navigateToImage]);
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => handleNextImage(),
+    onSwipedRight: () => handlePreviousImage(),
+    preventScrollOnSwipe: true,
+    trackMouse: true,
+  });
+  // --- End: Wrapped navigation handlers ---
 
   // Effect to open modal based on URL query parameter on initial load
   useEffect(() => {
@@ -242,15 +285,23 @@ function Home() {
           setShowCommentModal(false);
         } else if (modalImageId) {
           setModalImageId(null);
-          setModalImage(undefined); // Clear image state too
+          // setModalImage(undefined); // Clear image state too (modalImage state removed)
           // Optionally clear URL param: window.history.pushState({}, '', '/');
         } else if (showGreatnessModal) {
           setShowGreatnessModal(false);
         }
+      } else if (modalImageId) {
+        // Only handle arrow keys if modal is open
+        if (event.key === "ArrowLeft") {
+          handlePreviousImage();
+        }
+        if (event.key === "ArrowRight") {
+          handleNextImage();
+        }
       }
     };
 
-    // Add event listener only if a modal is open
+    // Add event listener only if a modal is open or for general escape handling
     if (modalImageId || showCommentModal || showGreatnessModal) {
       document.addEventListener("keydown", handleKeyDown);
     }
@@ -259,7 +310,7 @@ function Home() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [modalImageId, showCommentModal, showGreatnessModal]); // Re-run if any modal state changes
+  }, [modalImageId, showCommentModal, showGreatnessModal, handlePreviousImage, handleNextImage]); // Added handlePreviousImage and handleNextImage to dependencies
 
   const handleGenerateImage = async () => {
     if (!prompt || isLimitReached || isGenerating) return;
@@ -303,10 +354,10 @@ function Home() {
   };
 
   const handleDownload = async () => {
-    if (!modalImage || !modalImageData) return;
+    if (!modalImageResult?.imageUrl || !modalImageData) return;
 
     try {
-      const response = await fetch(modalImage);
+      const response = await fetch(modalImageResult.imageUrl);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -336,7 +387,7 @@ function Home() {
 
   const handleCloseModal = () => {
     setModalImageId(null);
-    setModalImage(undefined);
+    // setModalImage(undefined); // modalImage state removed
     setShowCommentModal(false);
     setAuthorNameInput("");
     setAuthorSocialLinkInput("");
@@ -372,15 +423,8 @@ function Home() {
     modalImageId && modalImageData?.storageId ? { imageId: modalImageData.storageId } : "skip"
   );
 
-  useEffect(() => {
-    if (modalImageResult?.imageUrl) {
-      setModalImage(modalImageResult.imageUrl);
-    } else if (modalImageId && !modalImageResult?.imageUrl && modalImageData) {
-      setModalImage(undefined);
-    } else if (modalImageId && !modalImageData) {
-      setModalImage(undefined);
-    }
-  }, [modalImageId, modalImageResult?.imageUrl, modalImageData]);
+  // Removed useEffect for setModalImage as modalImage state itself is removed.
+  // The modal will directly use modalImageResult.imageUrl or a placeholder.
 
   // Calculate total number of items (or a placeholder if count is loading)
   const totalItems = galleryCount ?? galleryItems.length + (canLoadMore ? 1 : 0);
@@ -597,9 +641,10 @@ function Home() {
       {modalImageId && modalImageData && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div
+            {...swipeHandlers}
             className={`bg-white rounded-lg p-6 relative max-w-lg w-full max-h-[90vh] overflow-y-auto ${modalImageData?.isHighlighted ? "ring-2 ring-[#EB2E2A] ring-offset-2" : ""}`}>
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-black z-20"
+              className="absolute top-2 right-2 text-gray-500 hover:text-black z-[60]"
               onClick={handleCloseModal}>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -610,21 +655,65 @@ function Home() {
                 />
               </svg>
             </button>
-            {modalImage ? (
-              <img
-                src={modalImage}
-                alt={modalImageData?.prompt || "Modal image"}
-                className="w-full h-auto max-h-[60vh] object-contain mb-4 cursor-pointer"
-                onClick={handleDownload}
-              />
-            ) : (
-              <div className="w-full h-[400px] bg-gray-100 border border-gray-200 flex items-center justify-center mb-4 text-gray-500">
-                Loading image...
-              </div>
-            )}
+            <div className="relative group">
+              {modalImageResult?.imageUrl ? (
+                <img
+                  src={modalImageResult.imageUrl}
+                  alt={modalImageData?.prompt || "Modal image"}
+                  className="w-full h-auto max-h-[60vh] object-contain mb-4 cursor-pointer"
+                  onClick={handleDownload}
+                />
+              ) : (
+                <div className="w-full h-[400px] bg-gray-100 border border-gray-200 flex items-center justify-center mb-4 text-gray-500">
+                  Loading image...
+                </div>
+              )}
+              {prevImageDataResult && (
+                <button
+                  onClick={handlePreviousImage}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 transform bg-black/30 hover:bg-black/50 text-white p-2 rounded-full focus:outline-none z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  aria-label="Previous image"
+                  style={{ marginLeft: "-20px" }}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.75 19.5L8.25 12l7.5-7.5"
+                    />
+                  </svg>
+                </button>
+              )}
+              {nextImageDataResult && (
+                <button
+                  onClick={handleNextImage}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 transform bg-black/30 hover:bg-black/50 text-white p-2 rounded-full focus:outline-none z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  aria-label="Next image"
+                  style={{ marginRight: "-20px" }}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+
             {modalImageData && (
               <div className="mb-4 text-sm">
-                {/* Display Custom Admin Message if it exists */}
                 {modalImageData.customMessage && (
                   <div className="mb-3 p-3 bg-red-600 text-white rounded-md text-sm">
                     <p>

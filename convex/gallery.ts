@@ -68,6 +68,27 @@ export const SYSTEM_PROMPTS = {
 
 // System prompts for different styles end
 
+// Define a validator for the gallery item structure including the imageUrl
+const galleryItemWithUrlValidator = v.object({
+  _id: v.id("gallery"),
+  _creationTime: v.number(),
+  storageId: v.id("_storage"),
+  style: v.string(),
+  prompt: v.string(),
+  embedding: v.optional(v.array(v.float64())),
+  aiResponse: v.optional(v.string()),
+  likes: v.number(),
+  commentCount: v.optional(v.number()),
+  clicks: v.optional(v.number()),
+  authorName: v.optional(v.string()),
+  authorSocialLink: v.optional(v.string()),
+  authorEmail: v.optional(v.string()),
+  isHighlighted: v.optional(v.boolean()),
+  isHidden: v.optional(v.boolean()), // isHidden field is part of the document
+  customMessage: v.optional(v.string()),
+  imageUrl: v.union(v.string(), v.null()),
+});
+
 // --- processImage: Initialize client inside handler ---
 export const processImage = action({
   args: {
@@ -629,5 +650,82 @@ export const addOrUpdateCustomMessage = mutation({
     const messageToStore = customMessage.trim() === "" ? undefined : customMessage;
     await ctx.db.patch(galleryId, { customMessage: messageToStore });
     return { success: true, messageId: galleryId };
+  },
+});
+
+export const getAdjacentGalleryImage = query({
+  args: {
+    currentImageId: v.id("gallery"),
+    direction: v.union(v.literal("next"), v.literal("previous")),
+    // Note: For simplicity, this assumes the gallery is primarily ordered by creation time (newest first).
+    // If you have multiple sort orders or filters active in the gallery view,
+    // those would need to be passed here and applied to the query.
+  },
+  returns: v.union(galleryItemWithUrlValidator, v.null()),
+  handler: async (ctx, args) => {
+    const { currentImageId, direction } = args;
+
+    const currentImage = await ctx.db.get(currentImageId);
+    if (!currentImage) {
+      // Current image might have been deleted or ID is invalid
+      console.warn(`[getAdjacentGalleryImage] Current image ${currentImageId} not found.`);
+      return null;
+    }
+
+    let adjacentImageDoc: Doc<"gallery"> | null = null;
+
+    // The default gallery order is assumed to be newest first (descending _creationTime).
+    if (direction === "next") {
+      // "Next" means an older image in a "newest first" list.
+      adjacentImageDoc = await ctx.db
+        .query("gallery")
+        .filter((q) =>
+          q.and(
+            q.neq(q.field("isHidden"), true), // Ensure the image is visible
+            q.lt(q.field("_creationTime"), currentImage._creationTime)
+          )
+        )
+        .order("desc") // Order by creation time descending to get the immediate next older one
+        .first();
+    } else {
+      // "Previous" means a newer image in a "newest first" list.
+      adjacentImageDoc = await ctx.db
+        .query("gallery")
+        .filter((q) =>
+          q.and(
+            q.neq(q.field("isHidden"), true), // Ensure the image is visible
+            q.gt(q.field("_creationTime"), currentImage._creationTime)
+          )
+        )
+        .order("asc") // Order by creation time ascending to get the immediate next newer one
+        .first();
+    }
+
+    if (!adjacentImageDoc) {
+      return null; // No adjacent image found (either at the beginning or end of the list)
+    }
+
+    const imageUrl = await ctx.storage.getUrl(adjacentImageDoc.storageId);
+
+    // Construct the object matching the 'galleryItemWithUrlValidator'
+    return {
+      _id: adjacentImageDoc._id,
+      _creationTime: adjacentImageDoc._creationTime,
+      storageId: adjacentImageDoc.storageId,
+      style: adjacentImageDoc.style,
+      prompt: adjacentImageDoc.prompt,
+      embedding: adjacentImageDoc.embedding,
+      aiResponse: adjacentImageDoc.aiResponse,
+      likes: adjacentImageDoc.likes,
+      commentCount: adjacentImageDoc.commentCount,
+      clicks: adjacentImageDoc.clicks,
+      authorName: adjacentImageDoc.authorName,
+      authorSocialLink: adjacentImageDoc.authorSocialLink,
+      authorEmail: adjacentImageDoc.authorEmail,
+      isHighlighted: adjacentImageDoc.isHighlighted,
+      isHidden: adjacentImageDoc.isHidden,
+      customMessage: adjacentImageDoc.customMessage,
+      imageUrl: imageUrl,
+    };
   },
 });
