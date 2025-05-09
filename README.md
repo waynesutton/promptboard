@@ -1,8 +1,8 @@
-# 1 Million Prompts Contest
+# The 1 Million Prompts Image Generator Challenge.
 
 ## About
 
-**1 Million Prompts** is a community-powered AI image generator contest built with Convex, Convex Chef, and OpenAI. Every image contributes to a global goal: reaching 1,000,000 AI-generated prompts.  
+** Join the 1 Million Prompts Image Generator Challenge.** is a community-powered AI image generator contest built with Convex, Convex Chef, and OpenAI. Every image contributes to a global goal: reaching 1,000,000 AI-generated prompts.  
 Track progress in real-time, explore a living prompt gallery, and generate images in your favorite styles—from Pixar to pop art to thermal silhouettes.
 
 This isn't just another image app. It's a vibe-coded global challenge.

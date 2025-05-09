@@ -31,7 +31,7 @@ function AboutModal() {
       <button
         onClick={openModal}
         className="font-['Chakra_Petch'] font-light text-lg text-[#0F0F0F] hover:text-[#6B7280] focus:outline-none">
-        About
+        Contest Rules
       </button>
 
       {isOpen && (
@@ -51,17 +51,17 @@ function AboutModal() {
             <p className="mb-4 text-[#374151] font-['Inter']">
               <strong>1 Million Prompts</strong> is a community-powered AI image generator built
               with Convex, Convex Chef, and OpenAI. Every image contributes to a global goal:
-              reaching 1,000,000 AI-generated prompts.
+              reaching 1,000,000 AI Image prompts.
             </p>
             <p className="mb-4 text-[#374151] font-['Inter']">
               Track progress in real-time, explore a living prompt gallery, and generate images in
-              your favorite styles—from Pixar to pop art to thermal silhouettes.
+              your favorite styles—from ghibli to pop art to thermal silhouettes.
             </p>
             <p className="mb-4 text-[#374151] font-['Inter']">
               Because everyone has a creative prompt in them—and we want to see it.
             </p>
             <p className="mb-6 text-[#374151] font-['Inter']">
-              This isn't just another image app. It's a vibe-coded global challenge.
+              Join the 1 Million Prompts Image Generator Challenge.
             </p>
 
             <hr className="my-6 border-t border-[#E5E7EB]" />
@@ -75,10 +75,10 @@ function AboutModal() {
               to win:
             </p>
             <ul className="list-none mb-4 pl-0 text-[#374151] font-['Inter'] space-y-2">
-              <li>🔥 Prize for most creative prompt + image</li>
-              <li>❤️ Prize for most liked prompt</li>
+              <li>🔥 and Convex swag for the most creative prompt + image</li>
+              <li>❤️ and Convex swag Prize for most liked prompt + image</li>
               <li>
-                🏆 $$$$$ + Bonus for submitting the <strong>1 millionth prompt</strong>
+                🏆 $$$$$ and Convex swag for submitting the <strong>1 millionth prompt</strong>
               </li>
             </ul>
 
@@ -90,12 +90,20 @@ function AboutModal() {
                 Enter your prompt, select a style from the dropdown menu, click "Add Yours" to
                 generate an image
               </li>
-              <li>Add your prompt author name and social handle</li>
-              <li>Share your image on social media</li>
+              <li>
+                Add your prompt author name, social handle, and email (optional) but necessary for
+                prize claim.
+              </li>
+              <li>Share your image on social media with the copy link.</li>
             </ol>
+
+            <h3 className="text-lg font-semibold mb-2 font-['Chakra_Petch'] text-[#0F0F0F]">
+              Winners Notifications:
+            </h3>
             <p className="mb-6 text-[#374151] font-['Inter']">
-              Winners will also receive Convex swag and startup credits. Let the prompt cooking
-              begin.
+              Random winners will be selected until the 1 millionth prompt has been generated.
+              Selected winners will be notified via email and their image be highlighted on the site
+              via a red 🟥 border.
             </p>
             <p className="mb-6 text-[#374151] font-['Inter']">
               Winners will be announced on the via{" "}
