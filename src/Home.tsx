@@ -22,6 +22,15 @@ import InfiniteLoader from "react-window-infinite-loader";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { useSwipeable } from "react-swipeable";
 
+// Add a global declaration for the turnstile object
+// This is to inform TypeScript that `window.turnstile` will exist after the script loads
+declare global {
+  interface Window {
+    turnstile: any;
+    onloadTurnstileCallback: () => void;
+  }
+}
+
 // Remove logo IDs
 // const CHEF_LOGO_ID = "kg23gffcphmwpmp6sba280zphs7dyxsa";
 // const CONVEX_LOGO_ID = "kg22dhgjcrwasz9vpntxqj0q157eag1p";
@@ -156,7 +165,9 @@ function Home() {
   const [authorSocialLinkInput, setAuthorSocialLinkInput] = useState("");
   const [authorEmailInput, setAuthorEmailInput] = useState("");
   const [columnCount, setColumnCount] = useState(10);
-  const infiniteLoaderRef = useRef<typeof InfiniteLoader | null>(null);
+  const infiniteLoaderRef = useRef<InfiniteLoader | null>(null); // Adjusted type for InfiniteLoader ref
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null); // State for Turnstile token
+  const turnstileWidgetIdRef = useRef<string | null>(null); // Ref to store Turnstile widget ID
 
   // Queries
   const {
@@ -178,7 +189,7 @@ function Home() {
   const canLoadMore = galleryStatus === "CanLoadMore";
 
   // Actions & Mutations
-  const generateImage = useAction(api.gallery.processImage);
+  const generateImage = useAction(api.imageActions.processImage);
   const addComment = useMutation(api.gallery.addComment);
   const addLike = useMutation(api.gallery.addLike);
   const saveAuthorInfo = useMutation(api.gallery.addAuthorInfo);
@@ -223,6 +234,94 @@ function Home() {
     trackMouse: true,
   });
   // --- End: Wrapped navigation handlers ---
+
+  // --- useEffect for Cloudflare Turnstile ---
+  useEffect(() => {
+    const TURNSTILE_SITE_KEY = "0x4AAAAAABP...oxSb2wsHA6";
+    // Generate a truly unique name for the callback for this specific component instance and effect execution.
+    const uniqueOnloadCallbackName = `turnstileCallback_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+
+    // This function will be called by Turnstile via the global scope
+    const processTurnstile = () => {
+      if (
+        window.turnstile &&
+        !turnstileWidgetIdRef.current &&
+        document.getElementById("turnstile-widget-container")
+      ) {
+        try {
+          const widgetId = window.turnstile.render("#turnstile-widget-container", {
+            sitekey: TURNSTILE_SITE_KEY,
+            callback: (token: string) => {
+              setTurnstileToken(token);
+            },
+            "expired-callback": () => {
+              setTurnstileToken(null);
+              if (
+                turnstileWidgetIdRef.current &&
+                window.turnstile &&
+                typeof window.turnstile.reset === "function"
+              ) {
+                window.turnstile.reset(turnstileWidgetIdRef.current);
+              }
+            },
+            "error-callback": (errorCode: string) => {
+              console.error(`Turnstile error: ${errorCode}`);
+              setTurnstileToken(null);
+            },
+            // theme: "light", // Optional: set a theme
+          });
+          turnstileWidgetIdRef.current = widgetId;
+        } catch (e) {
+          console.error("Error rendering Turnstile widget:", e);
+        }
+      } else if (!document.getElementById("turnstile-widget-container") && window.turnstile) {
+        // If container is not yet in DOM, retry. This is a fallback, especially if React renders the div after script loads.
+        setTimeout(processTurnstile, 100);
+      }
+    };
+
+    // Only add script and callback if Turnstile is not already loaded
+    // and our specific callback isn't already on window (defensive)
+    if (!window.turnstile && !(window as any)[uniqueOnloadCallbackName]) {
+      // Assign the callback to the window object IMMEDIATELY BEFORE appending the script
+      (window as any)[uniqueOnloadCallbackName] = processTurnstile;
+
+      const script = document.createElement("script");
+      script.id = "turnstile-script-element"; // Keep an ID for potential checks
+      script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=${uniqueOnloadCallbackName}`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = () => {
+        console.error("Failed to load Cloudflare Turnstile script.");
+        delete (window as any)[uniqueOnloadCallbackName]; // Clean up global callback on script load error
+      };
+      document.head.appendChild(script);
+    } else if (window.turnstile && !turnstileWidgetIdRef.current) {
+      // Turnstile script might already be loaded (e.g. by another component or a previous render/HMR)
+      // but our widget for this instance isn't rendered yet.
+      processTurnstile();
+    }
+
+    // Cleanup function
+    return () => {
+      if (
+        turnstileWidgetIdRef.current &&
+        window.turnstile &&
+        typeof window.turnstile.remove === "function"
+      ) {
+        try {
+          window.turnstile.remove(turnstileWidgetIdRef.current);
+        } catch (e) {
+          // console.warn("Error removing Turnstile widget during cleanup:", e);
+        }
+      }
+      turnstileWidgetIdRef.current = null;
+
+      // Important: Clean up the specific global callback for this instance
+      delete (window as any)[uniqueOnloadCallbackName];
+    };
+  }, []); // Empty dependency array to run once on mount and clean up on unmount
+  // --- End: Turnstile useEffect ---
 
   // Effect to open modal based on URL query parameter on initial load
   useEffect(() => {
@@ -312,10 +411,15 @@ function Home() {
   }, [modalImageId, showCommentModal, showGreatnessModal, handlePreviousImage, handleNextImage]); // Added handlePreviousImage and handleNextImage to dependencies
 
   const handleGenerateImage = async () => {
-    if (!prompt || isLimitReached || isGenerating) return;
+    // Add check for turnstileToken
+    if (!prompt || isLimitReached || isGenerating || !turnstileToken) {
+      if (!turnstileToken) console.error("Turnstile token not available.");
+      return;
+    }
     setIsGenerating(true);
     try {
-      const result = await generateImage({ prompt, style: selectedStyle });
+      // Pass the turnstileToken to your Convex action
+      const result = await generateImage({ prompt, style: selectedStyle, turnstileToken });
       if (result?.galleryId) {
         setModalImageId(result.galleryId);
         setAuthorNameInput("");
@@ -455,7 +559,12 @@ function Home() {
       setColumnCount(calculateColumns());
       // Reset cached item sizes in InfiniteLoader if columns change
       if (infiniteLoaderRef.current) {
-        infiniteLoaderRef.current.resetloadMoreItemsCache();
+        // Check if the method exists before calling, to avoid runtime errors if typing is off
+        // @ts-ignore
+        if (typeof infiniteLoaderRef.current.resetloadMoreItemsCache === "function") {
+          // @ts-ignore
+          infiniteLoaderRef.current.resetloadMoreItemsCache();
+        }
       }
     };
 
@@ -468,7 +577,11 @@ function Home() {
   // Effect to reset infinite loader cache if items change drastically (e.g., new generation)
   useEffect(() => {
     if (infiniteLoaderRef.current) {
-      infiniteLoaderRef.current.resetloadMoreItemsCache();
+      // @ts-ignore
+      if (typeof infiniteLoaderRef.current.resetloadMoreItemsCache === "function") {
+        // @ts-ignore
+        infiniteLoaderRef.current.resetloadMoreItemsCache();
+      }
     }
   }, [galleryItems.length]); // Reset when the number of loaded items changes
 
@@ -530,10 +643,16 @@ function Home() {
             <option value="pixel art">Pixel Art</option>
             {/* New Options End */}
           </select>
+
+          {/* Cloudflare Turnstile Widget Container */}
+          {/* Ensure this div is present in your form where you want the widget to appear */}
+          {/* It will be targeted by window.turnstile.render */}
+          <div id="turnstile-widget-container" className="my-2 sm:my-0 sm:mx-2"></div>
+
           <button
             type="submit"
-            onClick={handleGenerateImage}
-            disabled={isGenerating || isLimitReached || !prompt}
+            // onClick={handleGenerateImage} // Already handled by form onSubmit
+            disabled={isGenerating || isLimitReached || !prompt || !turnstileToken} // Disable if token not ready
             // Adjust padding slightly on smaller screens if needed, keep text wrap prevention
             className="px-4 sm:px-6 py-2 bg-[#EB2E2A] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
             {isGenerating ? "Generating..." : "Add Yours"}
