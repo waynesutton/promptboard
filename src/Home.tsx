@@ -7,7 +7,6 @@ import {
   LegacyRef,
   RefObject,
   Ref,
-  InstanceType,
   useCallback,
 } from "react";
 import { useAction, useMutation, useQuery, usePaginatedQuery } from "convex/react";
