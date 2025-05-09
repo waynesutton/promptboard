@@ -237,7 +237,7 @@ function Home() {
 
   // --- useEffect for Cloudflare Turnstile ---
   useEffect(() => {
-    const TURNSTILE_SITE_KEY = "0x4AAAAAABP...oxSb2wsHA6";
+    const TURNSTILE_SITE_KEY = "0x4AAAAAABPtvtoxSb2wsHA6";
     // Generate a truly unique name for the callback for this specific component instance and effect execution.
     const uniqueOnloadCallbackName = `turnstileCallback_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
 
