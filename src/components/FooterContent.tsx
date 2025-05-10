@@ -38,25 +38,7 @@ export function FooterContent({
       : "#"; // Default href if not showing link or no galleryId
 
   return (
-    <div className="text-center py-4 mt-5">
-      <div className="text-sm text-[#6B7280] mb-2">
-        Cooked on
-        <a
-          href="https://convex.link/1millchefs"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-1 hover:underline">
-          Convex Chef
-        </a>{" "}
-        with a splash of
-        <a
-          href="https://openai.com/?utm_source=convexchef1millionprompts"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ml-1 hover:underline">
-          OpenAI
-        </a>{" "}
-      </div>
+    <div className="text-center py-2 mt-4 pb-[10px] mb-[20px]">
       <div className="flex items-center text-[#6B7280] text-sm  justify-center gap-2">
         {/* Use static path for Convex logo */}
         Powered by{" "}
@@ -70,10 +52,6 @@ export function FooterContent({
           rel="noopener noreferrer">
           <img src="/openai.svg" alt="OpenAI Logo" className="h-6" />
         </a>
-        {/* Use static path for Chef logo 
-        <a href="https://convex.link/1millchefs" target="_blank" rel="noopener noreferrer">
-          <img src="/chef.svg" alt="Chef Logo" className="h-6" />
-        </a>*/}
       </div>
 
       {showReportLink &&
@@ -95,14 +73,6 @@ export function FooterContent({
             {/* report link for modal only ends here */}
           </>
         )}
-      {/* remove dashboard link back here as it's part of the standard footerand I don't want it in the modal it's in the footer and not in the modal */}
-      {!hideDashboardLink && ( // Conditionally render the dashboard link
-        <div className="text-center text-sm text-gray-500 pt-4">
-          <a href="/dashboard" className="hover:underline">
-            Leaderboard
-          </a>
-        </div>
-      )}
     </div>
   );
 }
