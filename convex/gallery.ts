@@ -169,7 +169,7 @@ export const processImage = action({
       );
     }
 
-    console.log("[processImage] API key found. Initializing OpenAI client..."); // Log success before init
+    c onsole.log("[processImage] API key found. Initializing OpenAI client..."); // Log success before init
     const openai = new OpenAI({ apiKey: openaiApiKey });
     console.log("[processImage] OpenAI client initialized successfully.");
     // --- End client initialization ---
