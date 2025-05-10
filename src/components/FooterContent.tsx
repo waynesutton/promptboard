@@ -39,6 +39,24 @@ export function FooterContent({
 
   return (
     <div className="text-center py-4 mt-5">
+      <div className="text-sm text-[#6B7280] mb-2">
+        Cooked on
+        <a
+          href="https://convex.link/1millchefs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-1 hover:underline">
+          Convex Chef
+        </a>{" "}
+        with a splash of
+        <a
+          href="https://openai.com/?utm_source=convexchef1millionprompts"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-1 hover:underline">
+          OpenAI
+        </a>{" "}
+      </div>
       <div className="flex items-center text-[#6B7280] text-sm  justify-center gap-2">
         {/* Use static path for Convex logo */}
         Powered by{" "}
